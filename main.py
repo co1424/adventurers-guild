@@ -1,8 +1,15 @@
 import arcade
+from powerup import PowerUp
+from Entity import Entity
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Starting Template"
+CHARACTER_SCALING = .5
+TILE_SCALING = 0.5
+LAYER_NAME_PLAYER = "Player"
+LAYER_NAME_ENEMIES = "Enemies"
+
 
 
 class MyGame(arcade.Window):
@@ -17,14 +24,37 @@ class MyGame(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
 
-        arcade.set_background_color(arcade.color.AMAZON)
+        arcade.set_background_color(arcade.color.WHITE)
+
+        self.wall_list = None
+        self.player_list = None
+        self.player_sprite = None
 
         # If you have sprite lists, you should create them here,
         # and set them to None
 
     def setup(self):
-        """ Set up the game variables. Call to re-start the game. """
+    
         # Create your sprites and sprite lists here
+        #Entity
+        self.player_list = arcade.SpriteList()
+
+    
+        
+        # Set up the player, specifically placing it at these coordinates.
+        image_source = ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png"
+        self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
+        self.player_sprite.center_x = 400
+        self.player_sprite.center_y = 400
+        self.player_list.append(self.player_sprite)
+        self.player_list.append(Entity())
+
+        
+
+
+
+
+
         pass
 
     def on_draw(self):
@@ -35,6 +65,8 @@ class MyGame(arcade.Window):
         # This command should happen before we start drawing. It will clear
         # the screen to the background color, and erase what we drew last frame.
         self.clear()
+
+        self.player_list.draw()
 
         # Call draw() on all your sprite lists below
 
@@ -87,5 +119,6 @@ def main():
     arcade.run()
 
 
-if __name__ == "__main__":
-    main()
+
+
+main()

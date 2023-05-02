@@ -1,16 +1,18 @@
 import arcade
 
-class Entity():
+class Entity(arcade.Sprite):
+    def __init__(self, name_folder, name_file):
+            super().__init__()
+            img = f":resources:images/tiles/torch1.png"
+            self.player_list = arcade.SpriteList()
+            self.player_sprite = arcade.Sprite(img)
+            
 
-    def __init__(self, sprite='', x=200, y=200, max_acceleration=-1, max_speed=-1):
-        self.__sprite = sprite
-        self.__x = x
-        self.__y = y
-        self.__max_acceleration = max_acceleration
-        self.__max_speed = max_speed
+            #self.set_hit_box(self.texture.hit_box_points)
+    #self.player_list = arcade.SpriteList()  
     
-    def Draw(self):
-        self.__sprite.draw()
+    def add(self):
+        self.player_list.append(self.player_sprite)
         pass
 
     def Move(self, objects_touching_sprite):
