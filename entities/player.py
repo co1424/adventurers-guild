@@ -1,5 +1,5 @@
-from platformer.constants import LEFT_FACING, RIGHT_FACING
-from platformer.entities.entity import Entity
+from constants import LEFT_FACING, RIGHT_FACING
+from entities.entity import Entity
 
 
 class Player(Entity):
