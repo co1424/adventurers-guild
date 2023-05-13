@@ -80,7 +80,7 @@ class GameView(View):
 
         # Map name - CHANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         
-        map_name = rf"./EndRoom.tmj"
+        map_name = "views/maps-data/map2.tmj"
 
         # Layer Specific Options for the Tilemap
         layer_options = {
