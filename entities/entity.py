@@ -14,7 +14,7 @@ def load_texture_pair(filename):
 
 
 class Entity(arcade.Sprite):
-    def __init__(self, folder, file_prefix):
+    def __init__(self, folder, file_prefix, scale):
         super().__init__()
 
         # Default to facing right
@@ -22,26 +22,26 @@ class Entity(arcade.Sprite):
 
         # Used for image sequences
         self.cur_texture = 0
-        self.scale = CHARACTER_SCALING
+        self.scale = scale
 
         self.animations = {}
 
         self.idle_texture_pair = load_texture_pair(f"{folder}/{file_prefix}_idle.png")
-        self.jump_texture_pair = load_texture_pair(f"{folder}/{file_prefix}_jump.png")
-        self.fall_texture_pair = load_texture_pair(f"{folder}/{file_prefix}_fall.png")
+        # self.jump_texture_pair = load_texture_pair(f"{folder}/{file_prefix}_jump.png")
+        # self.fall_texture_pair = load_texture_pair(f"{folder}/{file_prefix}_fall.png")
 
         # Load textures for walking
-        self.walk_textures = []
+        """self.walk_textures = []
         for i in range(8):
             texture = load_texture_pair(f"{folder}/{file_prefix}_walk{i}.png")
-            self.walk_textures.append(texture)
+            self.walk_textures.append(texture)"""
 
         # Load textures for climbing
-        self.climbing_textures = []
+        """self.climbing_textures = []
         texture = arcade.load_texture(f"{folder}/{file_prefix}_climb0.png")
         self.climbing_textures.append(texture)
         texture = arcade.load_texture(f"{folder}/{file_prefix}_climb1.png")
-        self.climbing_textures.append(texture)
+        self.climbing_textures.append(texture)"""
 
         # Set the initial texture
         self.texture = self.idle_texture_pair[0]

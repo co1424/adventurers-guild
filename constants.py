@@ -1,6 +1,8 @@
 # GameWindow variables
 SCREEN_WIDTH = 1216
 SCREEN_HEIGHT = 800
+SCREEN_TILE_WIDTH = 38
+SCREEN_TILE_HEIGHT = 25
 SCREEN_TITLE = "Adventurer's Guild"
 
 # Constants used to scale our sprites from their original size
