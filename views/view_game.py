@@ -7,7 +7,8 @@ import os
 import arcade
 
 from constants import *
-from entities import player, enemy
+from entities.player import Player
+from entities.enemy import Enemy
 from views.view import View
 
 class GameView(View):
@@ -85,7 +86,7 @@ class GameView(View):
         # Layer Specific Options for the Tilemap
         layer_options = {
             LAYER_NAME_WALLS: {
-                "use_spatial_hash": False,
+                "use_spatial_hash": True,
             }#, 
         }
             
@@ -109,21 +110,21 @@ class GameView(View):
 
         # Keep track of the score
         self.score = 0
-    """
+        """
         # Shooting mechanics
         self.can_shoot = True
         self.shoot_timer = 0
-
+        """
         # Set up the player, specifically placing it at these coordinates.
-        self.player_sprite = Player(self.selected_player)
+        self.player_sprite = Player()
         self.player_sprite.center_x = (
-            self.tile_map.tiled_map.tile_size[0] * TILE_SCALING * PLAYER_START_X
+            (SCREEN_TILE_WIDTH / 2) * self.tile_map.tiled_map.tile_size[0]
         )
         self.player_sprite.center_y = (
-            self.tile_map.tiled_map.tile_size[1] * TILE_SCALING * PLAYER_START_Y
+            (SCREEN_TILE_HEIGHT / 2) * self.tile_map.tiled_map.tile_size[1]
         )
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
-
+        """
         # Calculate the right edge of the my_map in pixels
         self.end_of_map = self.tile_map.tiled_map.map_size.width * GRID_PIXEL_SIZE
 

@@ -5,25 +5,15 @@ from entities.entity import Entity
 class Player(Entity):
     """Player Sprite"""
 
-    def __init__(self, character_number):
+    def __init__(self):
 
-        if character_number == 1:
-            folder = "assets/images/sprites/players/person_female"
-            file_prefix = "character_femalePerson"
-        elif character_number == 2:
-            folder = "assets/images/sprites/players/adventurer_male"
-            file_prefix = "character_maleAdventurer"
-        elif character_number == 3:
-            folder = "assets/images/sprites/players/adventurer_female"
-            file_prefix = "character_femaleAdventurer"
-        elif character_number == 4:
-            folder = "assets/images/sprites/players/person_male"
-            file_prefix = "character_malePerson"
-        else:
-            raise ValueError(f"Unknown character number {character_number}")
+        folder = "Sprite/Player"
+        file_prefix = "character"
 
         # Set up parent class
-        super().__init__(folder, file_prefix)
+        scale = .1
+
+        super().__init__(folder, file_prefix, scale)
 
         # Track our state
         self.jumping = False
