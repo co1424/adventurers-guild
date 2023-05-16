@@ -29,7 +29,7 @@
             6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4,
             5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5],
          "height":25,
-         "id":2,
+         "id":1,
          "name":"Walls",
          "opacity":1,
          "type":"tilelayer",
@@ -38,7 +38,7 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":3,
+ "nextlayerid":2,
  "nextobjectid":1,
  "orientation":"orthogonal",
  "renderorder":"right-down",
@@ -48,7 +48,7 @@
         {
          "columns":3,
          "firstgid":1,
-         "image":"RockWallTileSet.png",
+         "image":"assets/tilesets/RockWallTileSet.png",
          "imageheight":96,
          "imagewidth":96,
          "margin":0,
