@@ -11,12 +11,29 @@ from entities.player import Player
 from entities.enemy import Enemy
 from views.view import View
 
+from views.view_game_over import GameOverView
+
+
+# Speed limit
+MAX_SPEED = 4.0
+
+# How fast we accelerate
+ACCELERATION_RATE = 0.3
+
+# How fast to slow down after we let off the key
+FRICTION = 0.08
+
 class GameView(View):
     def __init__(self):
         """
         Initializer for the game
         """
         super().__init__()
+
+        self.player_sprite = None
+        self.enemy_sprite = None
+        self.game_over = False
+        self.keys_pressed = set()
 
         # Track the current state of what key is pressed
         self.left_pressed = False
@@ -68,12 +85,12 @@ class GameView(View):
         super().setup()
 
         # Track the current state of what key is pressed
-        self.left_pressed = False
-        self.right_pressed = False
-        self.up_pressed = False
-        self.down_pressed = False
-        self.shoot_pressed = False
-        self.jump_needs_reset = False
+       #self.left_pressed = False
+        #self.right_pressed = False
+        #self.up_pressed = False
+        #self.down_pressed = False
+        #self.shoot_pressed = False
+        #self.jump_needs_reset = False
 
         # Setup the Cameras
         #self.camera = arcade.Camera(self.window.width, self.window.height)
@@ -110,11 +127,27 @@ class GameView(View):
 
         # Keep track of the score
         self.score = 0
-        """
+
+        # Load your sprites and set up the game
+        # Sprite lists
+        #self.player_list = arcade.SpriteList()
+
+        # Set up the player
+        #self.player_sprite = Player(":resources:images/animated_characters/female_person/femalePerson_idle.png")
+        #self.player_sprite.center_x = 1216 - self.player_sprite.width // 2
+        #self.player_sprite.center_y = 800 - self.player_sprite.height // 2
+        #self.player_list.append(self.player_sprite)
+
+        #set up enemies
+        self.enemy_sprite = arcade.Sprite(":resources:images/space_shooter/playerShip1_orange.png")
+        self.enemy_sprite.center_x = 1216 // 3
+        self.enemy_sprite.center_y = 800 // 3
+
+        
         # Shooting mechanics
         self.can_shoot = True
         self.shoot_timer = 0
-        """
+    
         # Set up the player, specifically placing it at these coordinates.
         self.player_sprite = Player()
         self.player_sprite.center_x = (
@@ -124,10 +157,10 @@ class GameView(View):
             (SCREEN_TILE_HEIGHT / 2) * self.tile_map.tiled_map.tile_size[1]
         )
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
-        """
+        
         # Calculate the right edge of the my_map in pixels
         self.end_of_map = self.tile_map.tiled_map.map_size.width * GRID_PIXEL_SIZE
-
+        """
         # -- Enemies
         enemies_layer = self.tile_map.object_lists[LAYER_NAME_ENEMIES]
 
@@ -191,6 +224,9 @@ class GameView(View):
         # Draw our Scene
         self.scene.draw()
 
+        self.player_sprite.draw()
+        self.enemy_sprite.draw()
+
         # Activate the GUI camera before drawing GUI elements
         #self.gui_camera.use()
 
@@ -246,47 +282,32 @@ class GameView(View):
             self.player_sprite.change_x = 0
     """
 
-    """
     def on_key_press(self, key, modifiers):
         #Called whenever a key is pressed.
 
-        if key == arcade.key.UP or key == arcade.key.W:
+        if key == arcade.key.UP:
             self.up_pressed = True
-        elif key == arcade.key.DOWN or key == arcade.key.S:
+        elif key == arcade.key.DOWN:
             self.down_pressed = True
-        elif key == arcade.key.LEFT or key == arcade.key.A:
+        elif key == arcade.key.LEFT:
             self.left_pressed = True
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
+        elif key == arcade.key.RIGHT:
             self.right_pressed = True
 
-        if key == arcade.key.Q:
-            self.shoot_pressed = True
 
-        if key == arcade.key.ESCAPE:
-            self.window.show_view(self.window.views["pause"])
-
-        self.process_keychange()
-    """
-
-    """
+    
     def on_key_release(self, key, modifiers):
         #Called when the user releases a key.
 
-        if key == arcade.key.UP or key == arcade.key.W:
+        if key == arcade.key.UP:
             self.up_pressed = False
-            self.jump_needs_reset = False
-        elif key == arcade.key.DOWN or key == arcade.key.S:
+        elif key == arcade.key.DOWN:
             self.down_pressed = False
-        elif key == arcade.key.LEFT or key == arcade.key.A:
+        elif key == arcade.key.LEFT:
             self.left_pressed = False
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
+        elif key == arcade.key.RIGHT:
             self.right_pressed = False
 
-        if key == arcade.key.Q:
-            self.shoot_pressed = False
-
-        self.process_keychange()
-    """
 
     """
     def center_camera_to_player(self, speed=0.2):
@@ -303,8 +324,72 @@ class GameView(View):
         self.camera.move_to(player_centered, speed)
     """
 
-    """
+    
     def on_update(self, delta_time):
+
+        # Update the enemy's position to follow the player
+            dx = self.player_sprite.center_x - self.enemy_sprite.center_x
+            dy = self.player_sprite.center_y - self.enemy_sprite.center_y
+            angle = math.atan2(dy, dx)
+            self.enemy_sprite.angle = math.degrees(angle)
+
+            # Calculate the velocity components based on the angle
+            speed = 2  # Adjust the speed as needed
+            velocity_x = speed * math.cos(angle)
+            velocity_y = speed * math.sin(angle)
+
+            # Update the enemy's position
+            self.enemy_sprite.center_x += velocity_x
+            self.enemy_sprite.center_y += velocity_y
+
+            # Update the rotation of the enemy sprite to face the player sprite
+            angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
+            self.enemy_sprite.angle = math.degrees(angle)  # Convert the angle to degrees
+
+            # Check for collision with the player
+            if arcade.check_for_collision(self.enemy_sprite, self.player_sprite):
+                #GameView.setup(self)
+                if "game_over" not in self.window.views:
+                    self.window.views["game_over"] = GameOverView()
+                self.window.show_view(self.window.views["game_over"])
+
+            # Add some friction
+            if self.player_sprite.change_x > FRICTION:
+                self.player_sprite.change_x -= FRICTION
+            elif self.player_sprite.change_x < -FRICTION:
+                self.player_sprite.change_x += FRICTION
+            else:
+                self.player_sprite.change_x = 0
+
+            if self.player_sprite.change_y > FRICTION:
+                self.player_sprite.change_y -= FRICTION
+            elif self.player_sprite.change_y < -FRICTION:
+                self.player_sprite.change_y += FRICTION
+            else:
+                self.player_sprite.change_y = 0
+
+            # Apply acceleration based on the keys pressed
+            if self.up_pressed and not self.down_pressed:
+                self.player_sprite.change_y += ACCELERATION_RATE
+            elif self.down_pressed and not self.up_pressed:
+                self.player_sprite.change_y += -ACCELERATION_RATE
+            if self.left_pressed and not self.right_pressed:
+                self.player_sprite.change_x += -ACCELERATION_RATE
+            elif self.right_pressed and not self.left_pressed:
+                self.player_sprite.change_x += ACCELERATION_RATE
+
+            if self.player_sprite.change_x > MAX_SPEED:
+                self.player_sprite.change_x = MAX_SPEED
+            elif self.player_sprite.change_x < -MAX_SPEED:
+                self.player_sprite.change_x = -MAX_SPEED
+            if self.player_sprite.change_y > MAX_SPEED:
+                self.player_sprite.change_y = MAX_SPEED
+            elif self.player_sprite.change_y < -MAX_SPEED:
+                self.player_sprite.change_y = -MAX_SPEED
+
+            self.player_sprite.update()    
+
+"""
         #Movement and game logic
 
         # Move the player with the physics engine
@@ -469,4 +554,6 @@ class GameView(View):
 
         # Position the camera
         self.center_camera_to_player()
-    """
+
+"""
+
