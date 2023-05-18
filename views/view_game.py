@@ -410,13 +410,12 @@ class GameView(View):
 
                 self.player_sprite.update()    
 
-"""
+            """
         #Movement and game logic
 
         # Move the player with the physics engine
         self.physics_engine.update()
 
-        """
         # Update animations
         if self.physics_engine.can_jump():
             self.player_sprite.can_jump = False
@@ -511,7 +510,7 @@ class GameView(View):
             ):
                 wall.change_y *= -1
 
-        """
+
         #player_collision_list = arcade.check_for_collision_with_lists(
         #    self.player_sprite,
         #    [
@@ -519,7 +518,7 @@ class GameView(View):
                 #self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
         #    ],
         #)
-        """
+
         for bullet in self.scene.get_sprite_list(LAYER_NAME_BULLETS):
             hit_list = arcade.check_for_collision_with_lists(
                 bullet,
@@ -578,5 +577,5 @@ class GameView(View):
         # Position the camera
         self.center_camera_to_player()
 
-"""
+        """ 
 
