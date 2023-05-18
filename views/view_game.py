@@ -87,8 +87,8 @@ class GameView(View):
         layer_options = {
             LAYER_NAME_WALLS: {
                 "use_spatial_hash": True,
-            }#, 
-        }
+            }, 
+        
             
         #    LAYER_NAME_MOVING_PLATFORMS: {
         #        "use_spatial_hash": True,
@@ -96,9 +96,9 @@ class GameView(View):
         #    LAYER_NAME_LADDERS: {
         #        "use_spatial_hash": True,
         #    },
-        #    LAYER_NAME_COINS: {
-        #        "use_spatial_hash": True,
-        #    },
+            LAYER_NAME_POWERUPS: {
+               "use_spatial_hash": True,
+           }}
             
 
         # Load in TileMap
