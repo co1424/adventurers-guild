@@ -196,18 +196,16 @@ class GameView(View):
         # Set the background color
         if self.tile_map.tiled_map.background_color:
             arcade.set_background_color(self.tile_map.tiled_map.background_color)
-
+    """
+    
         # Create the 'physics engine'
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite,
-            [
-                self.scene.get_sprite_list(LAYER_NAME_PLATFORMS),
-                self.scene.get_sprite_list(LAYER_NAME_MOVING_PLATFORMS),
-            ],
             gravity_constant=GRAVITY,
-            ladders=self.scene.get_sprite_list(LAYER_NAME_LADDERS),
+            walls=self.scene.get_sprite_list(LAYER_NAME_WALLS)
         )
-    """
+
+
 
     """
     def on_show_view(self):
@@ -418,6 +416,7 @@ class GameView(View):
         # Move the player with the physics engine
         self.physics_engine.update()
 
+        """
         # Update animations
         if self.physics_engine.can_jump():
             self.player_sprite.can_jump = False
@@ -512,14 +511,15 @@ class GameView(View):
             ):
                 wall.change_y *= -1
 
-        player_collision_list = arcade.check_for_collision_with_lists(
-            self.player_sprite,
-            [
-                self.scene.get_sprite_list(LAYER_NAME_COINS),
-                self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
-            ],
-        )
-
+        """
+        #player_collision_list = arcade.check_for_collision_with_lists(
+        #    self.player_sprite,
+        #    [
+                #self.scene.get_sprite_list(LAYER_NAME_COINS),
+                #self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
+        #    ],
+        #)
+        """
         for bullet in self.scene.get_sprite_list(LAYER_NAME_BULLETS):
             hit_list = arcade.check_for_collision_with_lists(
                 bullet,
