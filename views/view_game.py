@@ -42,6 +42,8 @@ class GameView(View):
         self.down_pressed = False
         self.shoot_pressed = False
 
+        self.mouse_pos = 0, 0
+
         # Our TileMap Object
         self.tile_map = None
 
@@ -283,13 +285,13 @@ class GameView(View):
     def on_key_press(self, key, modifiers):
         #Called whenever a key is pressed.
 
-        if key == arcade.key.UP:
+        if key == arcade.key.W:
             self.up_pressed = True
-        elif key == arcade.key.DOWN:
+        elif key == arcade.key.S:
             self.down_pressed = True
-        elif key == arcade.key.LEFT:
+        elif key == arcade.key.A:
             self.left_pressed = True
-        elif key == arcade.key.RIGHT:
+        elif key == arcade.key.D:
             self.right_pressed = True
 
 
@@ -297,14 +299,17 @@ class GameView(View):
     def on_key_release(self, key, modifiers):
         #Called when the user releases a key.
 
-        if key == arcade.key.UP:
+        if key == arcade.key.W:
             self.up_pressed = False
-        elif key == arcade.key.DOWN:
+        elif key == arcade.key.S:
             self.down_pressed = False
-        elif key == arcade.key.LEFT:
+        elif key == arcade.key.A:
             self.left_pressed = False
-        elif key == arcade.key.RIGHT:
+        elif key == arcade.key.D:
             self.right_pressed = False
+    
+    def on_mouse_motion(self, x: int, y: int, dx: int, dy: int):
+        self.mouse_pos = x, y
 
 
     """
@@ -326,65 +331,91 @@ class GameView(View):
     def on_update(self, delta_time):
 
         # Update the enemy's position to follow the player
-        dx = self.player_sprite.center_x - self.enemy_sprite.center_x
-        dy = self.player_sprite.center_y - self.enemy_sprite.center_y
-        angle = math.atan2(dy, dx)
-        self.enemy_sprite.angle = math.degrees(angle)
-        # Calculate the velocity components based on the angle
-        speed = 2  # Adjust the speed as needed
-        velocity_x = speed * math.cos(angle)
-        velocity_y = speed * math.sin(angle)
-        # Update the enemy's position
-        self.enemy_sprite.center_x += velocity_x
-        self.enemy_sprite.center_y += velocity_y
-        # Update the rotation of the enemy sprite to face the player sprite
-        angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
-        self.enemy_sprite.angle = math.degrees(angle)  # Convert the angle to degrees
-        # Check for collision with the player
-        if arcade.check_for_collision(self.enemy_sprite, self.player_sprite):
-            #GameView.setup(self)
-            if "game_over" not in self.window.views:
-                self.window.views["game_over"] = GameOverView()
-            self.window.show_view(self.window.views["game_over"])
-        # Add some friction
-        if self.player_sprite.change_x > FRICTION:
-            self.player_sprite.change_x -= FRICTION
-        elif self.player_sprite.change_x < -FRICTION:
-            self.player_sprite.change_x += FRICTION
-        else:
-            self.player_sprite.change_x = 0
-        if self.player_sprite.change_y > FRICTION:
-            self.player_sprite.change_y -= FRICTION
-        elif self.player_sprite.change_y < -FRICTION:
-            self.player_sprite.change_y += FRICTION
-        else:
-            self.player_sprite.change_y = 0
-        # Apply acceleration based on the keys pressed
-        if self.up_pressed and not self.down_pressed:
-            self.player_sprite.change_y += ACCELERATION_RATE
-        elif self.down_pressed and not self.up_pressed:
-            self.player_sprite.change_y += -ACCELERATION_RATE
-        if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x += -ACCELERATION_RATE
-        elif self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x += ACCELERATION_RATE
-        if self.player_sprite.change_x > MAX_SPEED:
-            self.player_sprite.change_x = MAX_SPEED
-        elif self.player_sprite.change_x < -MAX_SPEED:
-            self.player_sprite.change_x = -MAX_SPEED
-        if self.player_sprite.change_y > MAX_SPEED:
-            self.player_sprite.change_y = MAX_SPEED
-        elif self.player_sprite.change_y < -MAX_SPEED:
-            self.player_sprite.change_y = -MAX_SPEED
-        self.player_sprite.update()
+            dx = self.player_sprite.center_x - self.enemy_sprite.center_x
+            dy = self.player_sprite.center_y - self.enemy_sprite.center_y
+            angle = math.atan2(dy, dx)
+            self.enemy_sprite.angle = math.degrees(angle)
 
+            # Calculate the velocity components based on the angle
+            speed = 2  # Adjust the speed as needed
+            velocity_x = speed * math.cos(angle)
+            velocity_y = speed * math.sin(angle)
 
+            # Update the enemy's position
+            self.enemy_sprite.center_x += velocity_x
+            self.enemy_sprite.center_y += velocity_y
+
+            # Update the rotation of the enemy sprite to face the player sprite
+            angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
+            self.enemy_sprite.angle = math.degrees(angle)  # Convert the angle to degrees
+
+            # Check for collision with the player
+            if arcade.check_for_collision(self.enemy_sprite, self.player_sprite):
+                #game over and restart
+                GameView.setup(self)
+                self.player_sprite.change_x = 0
+                self.player_sprite.change_y = 0
+                self.right_pressed = False
+                self.left_pressed = False
+                self.down_pressed = False
+                self.up_pressed = False
+                self.player_sprite.update()    
+
+                if "game_over" not in self.window.views:
+                    self.window.views["game_over"] = GameOverView()
+                self.window.show_view(self.window.views["game_over"])
+            else:
+                # Add some friction
+                if self.player_sprite.change_x > FRICTION:
+                    self.player_sprite.change_x -= FRICTION
+                elif self.player_sprite.change_x < -FRICTION:
+                    self.player_sprite.change_x += FRICTION
+                else:
+                    self.player_sprite.change_x = 0
+
+                if self.player_sprite.change_y > FRICTION:
+                    self.player_sprite.change_y -= FRICTION
+                elif self.player_sprite.change_y < -FRICTION:
+                    self.player_sprite.change_y += FRICTION
+                else:
+                    self.player_sprite.change_y = 0
+
+                # Apply acceleration based on the keys pressed
+                if self.up_pressed and not self.down_pressed:
+                    self.player_sprite.change_y += ACCELERATION_RATE
+                elif self.down_pressed and not self.up_pressed:
+                    self.player_sprite.change_y += -ACCELERATION_RATE
+                if self.left_pressed and not self.right_pressed:
+                    self.player_sprite.change_x += -ACCELERATION_RATE
+                elif self.right_pressed and not self.left_pressed:
+                    self.player_sprite.change_x += ACCELERATION_RATE
+
+                if self.player_sprite.change_x > MAX_SPEED:
+                    self.player_sprite.change_x = MAX_SPEED
+                elif self.player_sprite.change_x < -MAX_SPEED:
+                    self.player_sprite.change_x = -MAX_SPEED
+                if self.player_sprite.change_y > MAX_SPEED:
+                    self.player_sprite.change_y = MAX_SPEED
+                elif self.player_sprite.change_y < -MAX_SPEED:
+                    self.player_sprite.change_y = -MAX_SPEED
+
+                dx = self.player_sprite.center_x - self.mouse_pos[0]
+                dy = self.player_sprite.center_y - self.mouse_pos[1]
+                angle = math.atan2(dy, dx)
+                self.player_sprite.angle = math.degrees(angle)
+
+                angle = math.atan2(dy, dx) + 1.5708  # Calculate the angle between the two sprites
+                self.player_sprite.angle = math.degrees(angle)  # Convert the angle to degrees
+                    
+
+                self.player_sprite.update()    
+
+            """
         #Movement and game logic
 
         # Move the player with the physics engine
         self.physics_engine.update()
 
-        """
         # Update animations
         if self.physics_engine.can_jump():
             self.player_sprite.can_jump = False
@@ -479,7 +510,7 @@ class GameView(View):
             ):
                 wall.change_y *= -1
 
-        """
+
         #player_collision_list = arcade.check_for_collision_with_lists(
         #    self.player_sprite,
         #    [
@@ -487,7 +518,7 @@ class GameView(View):
                 #self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
         #    ],
         #)
-        """
+
         for bullet in self.scene.get_sprite_list(LAYER_NAME_BULLETS):
             hit_list = arcade.check_for_collision_with_lists(
                 bullet,
@@ -545,7 +576,6 @@ class GameView(View):
 
         # Position the camera
         self.center_camera_to_player()
-        
 
-"""
+        """ 
 
