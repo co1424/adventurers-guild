@@ -42,6 +42,8 @@ class GameView(View):
         self.down_pressed = False
         self.shoot_pressed = False
 
+        self.mouse_pos = 0, 0
+
         # Our TileMap Object
         self.tile_map = None
 
@@ -277,13 +279,13 @@ class GameView(View):
     def on_key_press(self, key, modifiers):
         #Called whenever a key is pressed.
 
-        if key == arcade.key.UP:
+        if key == arcade.key.W:
             self.up_pressed = True
-        elif key == arcade.key.DOWN:
+        elif key == arcade.key.S:
             self.down_pressed = True
-        elif key == arcade.key.LEFT:
+        elif key == arcade.key.A:
             self.left_pressed = True
-        elif key == arcade.key.RIGHT:
+        elif key == arcade.key.D:
             self.right_pressed = True
 
 
@@ -291,14 +293,17 @@ class GameView(View):
     def on_key_release(self, key, modifiers):
         #Called when the user releases a key.
 
-        if key == arcade.key.UP:
+        if key == arcade.key.W:
             self.up_pressed = False
-        elif key == arcade.key.DOWN:
+        elif key == arcade.key.S:
             self.down_pressed = False
-        elif key == arcade.key.LEFT:
+        elif key == arcade.key.A:
             self.left_pressed = False
-        elif key == arcade.key.RIGHT:
+        elif key == arcade.key.D:
             self.right_pressed = False
+    
+    def on_mouse_motion(self, x: int, y: int, dx: int, dy: int):
+        self.mouse_pos = x, y
 
 
     """
@@ -318,6 +323,7 @@ class GameView(View):
 
     
     def on_update(self, delta_time):
+
         # Add some friction
         if self.player_sprite.change_x > FRICTION:
             self.player_sprite.change_x -= FRICTION
@@ -350,12 +356,19 @@ class GameView(View):
             self.player_sprite.change_y = -MAX_SPEED
         #self.player_sprite.update()
 
+        dx = self.player_sprite.center_x - self.mouse_pos[0]
+        dy = self.player_sprite.center_y - self.mouse_pos[1]
+        angle = math.atan2(dy, dx)
+        self.player_sprite.angle = math.degrees(angle)
 
+        angle = math.atan2(dy, dx) + 1.5708  # Calculate the angle between the two sprites
+        self.player_sprite.angle = math.degrees(angle)  # Convert the angle to degrees
+
+         
         #Movement and game logic
 
         # Move the player with the physics engine
         self.physics_engine.update()
-
         """
         # Update animations
         if self.physics_engine.can_jump():
@@ -521,5 +534,3 @@ class GameView(View):
 
         # Position the camera
         # self.center_camera_to_player()
-        
-
