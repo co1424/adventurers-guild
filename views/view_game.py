@@ -98,15 +98,14 @@ class GameView(View):
         #self.camera = arcade.Camera(self.window.width, self.window.height)
         #self.gui_camera = arcade.Camera(self.window.width, self.window.height)
 
-        # Map name - CHANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        
-        map_name = "views/maps-data/map2.tmj"
+        # SET STARTING MAP:
+        map_name = "views/maps-data/map5.tmj"
 
         # Layer Specific Options for the Tilemap
         layer_options = {
             LAYER_NAME_WALLS: {
                 "use_spatial_hash": True,
-            }#, 
+            }, 
         }
             
         #    LAYER_NAME_MOVING_PLATFORMS: {
@@ -141,18 +140,19 @@ class GameView(View):
         #self.player_sprite.center_x = 1216 - self.player_sprite.width // 2
         #self.player_sprite.center_y = 800 - self.player_sprite.height // 2
         #self.player_list.append(self.player_sprite)
-        
+
         # Shooting mechanics
         self.can_shoot = True
         self.shoot_timer = 0
-    
-        # Set up the player, specifically placing it at these coordinates.
+        """
+        
+        # Set up the player at these coordinates. The unit of measurement is in tiles (Each map total width of 38, height of 25)
         self.player_sprite = Player()
         self.player_sprite.center_x = (
-            (SCREEN_TILE_WIDTH / 2) * self.tile_map.tiled_map.tile_size[0]
+            (SCREEN_TILE_WIDTH / 2) * self.tile_map.tiled_map.tile_size[0] # Middle of the screen (X)
         )
         self.player_sprite.center_y = (
-            (SCREEN_TILE_HEIGHT / 2) * self.tile_map.tiled_map.tile_size[1]
+            3 * self.tile_map.tiled_map.tile_size[1] # Bottom of the screen (Y)
         )
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
         
@@ -239,6 +239,50 @@ class GameView(View):
         #     wall.draw_hit_box(arcade.color.BLACK, 3)
         # 
         #     self.player_sprite.draw_hit_box(arcade.color.RED, 3)
+
+
+    def change_map(self, map_name: str):
+        """
+        Updates the map, and changes the player position
+
+        PARAMETERS
+        map_name (string): Fills in the file path as such: rf"views/maps-data/{map_name}"
+        """
+        # SET NEW MAP:
+        map_name = rf"views/maps-data/{map_name}"
+
+        # Layer Specific Options for the Tilemap
+        layer_options = {
+            LAYER_NAME_WALLS: {
+                "use_spatial_hash": True,
+            }, 
+        }
+            
+        # Load in TileMap
+        self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING, layer_options)
+
+        # Initiate New Scene with our TileMap, this will automatically add all layers
+        # from the map as SpriteLists in the scene in the proper order.
+        self.scene = arcade.Scene.from_tilemap(self.tile_map)
+
+        # Set up the player at these coordinates. The unit of measurement is in tiles (Each map total width of 38, height of 25)
+        self.player_sprite = Player()
+
+        # Check Player X position
+        if (self.player_sprite.center_x < SCREEN_TILE_WIDTH - ((2 / 3) * SCREEN_TILE_WIDTH)): # If player enters door on the left wall,
+            self.player_sprite.center_x = ((SCREEN_TILE_WIDTH - 3) * self.tile_map.tiled_map.tile_size[0]) # move them to the right
+        elif (self.player_sprite.center_x > SCREEN_TILE_WIDTH - ((1 / 3) * SCREEN_TILE_WIDTH)): # If player enters door on the right wall,
+            self.player_sprite.center_x = (3 * self.tile_map.tiled_map.tile_size[0]) # move them to the left
+        # Else the player must have entered a door on the top or bottom, so keep the x value
+
+        # Check Player Y position
+        if (self.player_sprite.center_y < SCREEN_TILE_HEIGHT - ((2 / 3) * SCREEN_TILE_HEIGHT)): # If player enters door on the top wall,
+            self.player_sprite.center_y = (3 * self.tile_map.tiled_map.tile_size[1]) # move them to the bottom
+        elif (self.player_sprite.center_y > SCREEN_TILE_HEIGHT - ((1 / 3) * SCREEN_TILE_HEIGHT)):  # If player enters door on bottom wall,
+            self.player_sprite.center_y = ((SCREEN_TILE_HEIGHT - 3) * self.tile_map.tiled_map.tile_size[1]) # move them to the top
+        # Else the player must have entered a door on the left or right, so keep the y value
+
+        self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
 
     """
     def process_keychange(self):
