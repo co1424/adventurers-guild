@@ -9,6 +9,7 @@ import arcade
 from constants import *
 from entities.player import Player
 from entities.enemy import Enemy
+from entities.basic_enemy import Basic_Enemy
 from views.view import View
 
 from views.view_game_over import GameOverView
@@ -31,7 +32,6 @@ class GameView(View):
         super().__init__()
 
         self.player_sprite = None
-        self.enemy_sprite = None
         self.game_over = False
         self.keys_pressed = set()
 
@@ -117,6 +117,8 @@ class GameView(View):
         #        "use_spatial_hash": True,
         #    },
             
+        if "game_over" not in self.window.views:
+            self.window.views["game_over"] = GameOverView()
 
         # Load in TileMap
         self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING, layer_options)
@@ -137,12 +139,6 @@ class GameView(View):
         #self.player_sprite.center_x = 1216 - self.player_sprite.width // 2
         #self.player_sprite.center_y = 800 - self.player_sprite.height // 2
         #self.player_list.append(self.player_sprite)
-
-        #set up enemies
-        self.enemy_sprite = arcade.Sprite(":resources:images/space_shooter/playerShip1_orange.png")
-        self.enemy_sprite.center_x = 1216 // 3
-        self.enemy_sprite.center_y = 800 // 3
-
         
         # Shooting mechanics
         self.can_shoot = True
@@ -160,7 +156,7 @@ class GameView(View):
         
         # Calculate the right edge of the my_map in pixels
         self.end_of_map = self.tile_map.tiled_map.map_size.width * GRID_PIXEL_SIZE
-        """
+        
         # -- Enemies
         enemies_layer = self.tile_map.object_lists[LAYER_NAME_ENEMIES]
 
@@ -169,24 +165,23 @@ class GameView(View):
                 my_object.shape[0], my_object.shape[1]
             )
             enemy_type = my_object.properties["type"]
-            if enemy_type == "robot":
-                enemy = Robot()
-            elif enemy_type == "zombie":
-                enemy = Zombie()
+
+            if enemy_type == "basic":
+                enemy = Basic_Enemy()
             enemy.center_x = math.floor(
                 cartesian[0] * TILE_SCALING * self.tile_map.tile_width
             )
             enemy.center_y = math.floor(
                 (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
             )
-            if "boundary_left" in my_object.properties:
+            """if "boundary_left" in my_object.properties:
                 enemy.boundary_left = my_object.properties["boundary_left"]
             if "boundary_right" in my_object.properties:
-                enemy.boundary_right = my_object.properties["boundary_right"]
+                enemy.boundary_right = my_object.properties["boundary_right"]"""
             if "change_x" in my_object.properties:
                 enemy.change_x = my_object.properties["change_x"]
             self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
-
+        """
         # Add bullet spritelist to Scene
         self.scene.add_sprite_list(LAYER_NAME_BULLETS)
 
@@ -194,7 +189,7 @@ class GameView(View):
         # Set the background color
         if self.tile_map.tiled_map.background_color:
             arcade.set_background_color(self.tile_map.tiled_map.background_color)
-    """
+        """
     
         # Create the 'physics engine'
         self.physics_engine = arcade.PhysicsEnginePlatformer(
@@ -223,7 +218,6 @@ class GameView(View):
         self.scene.draw()
 
         self.player_sprite.draw()
-        self.enemy_sprite.draw()
 
         # Activate the GUI camera before drawing GUI elements
         #self.gui_camera.use()
@@ -324,28 +318,6 @@ class GameView(View):
 
     
     def on_update(self, delta_time):
-
-        # Update the enemy's position to follow the player
-        dx = self.player_sprite.center_x - self.enemy_sprite.center_x
-        dy = self.player_sprite.center_y - self.enemy_sprite.center_y
-        angle = math.atan2(dy, dx)
-        self.enemy_sprite.angle = math.degrees(angle)
-        # Calculate the velocity components based on the angle
-        speed = 2  # Adjust the speed as needed
-        velocity_x = speed * math.cos(angle)
-        velocity_y = speed * math.sin(angle)
-        # Update the enemy's position
-        self.enemy_sprite.center_x += velocity_x
-        self.enemy_sprite.center_y += velocity_y
-        # Update the rotation of the enemy sprite to face the player sprite
-        angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
-        self.enemy_sprite.angle = math.degrees(angle)  # Convert the angle to degrees
-        # Check for collision with the player
-        if arcade.check_for_collision(self.enemy_sprite, self.player_sprite):
-            #GameView.setup(self)
-            if "game_over" not in self.window.views:
-                self.window.views["game_over"] = GameOverView()
-            self.window.show_view(self.window.views["game_over"])
         # Add some friction
         if self.player_sprite.change_x > FRICTION:
             self.player_sprite.change_x -= FRICTION
@@ -376,7 +348,7 @@ class GameView(View):
             self.player_sprite.change_y = MAX_SPEED
         elif self.player_sprite.change_y < -MAX_SPEED:
             self.player_sprite.change_y = -MAX_SPEED
-        self.player_sprite.update()
+        #self.player_sprite.update()
 
 
         #Movement and game logic
@@ -433,28 +405,30 @@ class GameView(View):
                 LAYER_NAME_ENEMIES,
             ],
         )
-
+        """
         # Update moving platforms, enemies, and bullets
         self.scene.update(
-            [LAYER_NAME_MOVING_PLATFORMS, LAYER_NAME_ENEMIES, LAYER_NAME_BULLETS]
+            [LAYER_NAME_ENEMIES]
         )
-
         # See if the enemy hit a boundary and needs to reverse direction.
         for enemy in self.scene.get_sprite_list(LAYER_NAME_ENEMIES):
-            if (
-                enemy.boundary_right
-                and enemy.right > enemy.boundary_right
-                and enemy.change_x > 0
-            ):
-                enemy.change_x *= -1
+            # Update the enemy's position to follow the player
+            dx = self.player_sprite.center_x - enemy.center_x
+            dy = self.player_sprite.center_y - enemy.center_y
+            angle = math.atan2(dy, dx)
+            enemy.angle = math.degrees(angle)
+            # Calculate the velocity components based on the angle
 
-            if (
-                enemy.boundary_left
-                and enemy.left < enemy.boundary_left
-                and enemy.change_x < 0
-            ):
-                enemy.change_x *= -1
+            velocity_x = BASIC_ENEMY_SPEED * math.cos(angle)
+            velocity_y = BASIC_ENEMY_SPEED * math.sin(angle)
+            # Update the enemy's position
+            enemy.center_x += velocity_x
+            enemy.center_y += velocity_y
+            # Update the rotation of the enemy sprite to face the player sprite
+            angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
+            enemy.angle = math.degrees(angle)  # Convert the angle to degrees
 
+        """
         # See if the moving wall hit a boundary and needs to reverse direction.
         for wall in self.scene.get_sprite_list(LAYER_NAME_MOVING_PLATFORMS):
 
@@ -480,13 +454,13 @@ class GameView(View):
                 wall.change_y *= -1
 
         """
-        #player_collision_list = arcade.check_for_collision_with_lists(
-        #    self.player_sprite,
-        #    [
+        player_collision_list = arcade.check_for_collision_with_lists(
+            self.player_sprite,
+            [
                 #self.scene.get_sprite_list(LAYER_NAME_COINS),
-                #self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
-        #    ],
-        #)
+                self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
+            ],
+        )
         """
         for bullet in self.scene.get_sprite_list(LAYER_NAME_BULLETS):
             hit_list = arcade.check_for_collision_with_lists(
@@ -523,7 +497,7 @@ class GameView(View):
                 > (self.tile_map.width * self.tile_map.tile_width) * TILE_SCALING
             ):
                 bullet.remove_from_sprite_lists()
-
+        """
         # Loop through each coin we hit (if any) and remove it
         for collision in player_collision_list:
 
@@ -531,6 +505,7 @@ class GameView(View):
                 arcade.play_sound(self.game_over)
                 self.window.show_view(self.window.views["game_over"])
                 return
+            """
             else:
                 # Figure out how many points this coin is worth
                 if "Points" not in collision.properties:
@@ -542,10 +517,9 @@ class GameView(View):
                 # Remove the coin
                 collision.remove_from_sprite_lists()
                 arcade.play_sound(self.collect_coin_sound)
+            """
 
         # Position the camera
-        self.center_camera_to_player()
+        # self.center_camera_to_player()
         
-
-"""
 
