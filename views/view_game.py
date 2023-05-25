@@ -16,15 +16,19 @@ from views.view_game_over import GameOverView
 
 
 # Speed limit
-MAX_SPEED = 4.0
+MAX_SPEED = 8.0
 
 # How fast we accelerate
-ACCELERATION_RATE = 0.3
+ACCELERATION_RATE = 0.6
 
 # How fast to slow down after we let off the key
-FRICTION = 0.08
+FRICTION = 0.35
 
 class GameView(View):
+
+    # SET STARTING MAP:
+    map_name = "map2.tmj"
+
     def __init__(self):
         """
         Initializer for the game
@@ -98,9 +102,6 @@ class GameView(View):
         #self.camera = arcade.Camera(self.window.width, self.window.height)
         #self.gui_camera = arcade.Camera(self.window.width, self.window.height)
 
-        # SET STARTING MAP:
-        map_name = "views/maps-data/map2.tmj"
-
         # Layer Specific Options for the Tilemap
         layer_options = {
             LAYER_NAME_WALLS: {
@@ -122,7 +123,7 @@ class GameView(View):
             self.window.views["game_over"] = GameOverView()
 
         # Load in TileMap
-        self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING, layer_options)
+        self.tile_map = arcade.load_tilemap(f"views/maps-data/{self.map_name}", TILE_SCALING, layer_options)
 
         # Initiate New Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.
@@ -240,10 +241,18 @@ class GameView(View):
         # 
         #     self.player_sprite.draw_hit_box(arcade.color.RED, 3)
 
+    def detect_map_change(self):
+        if (self.map_name == "map2.tmj"):
+            if (self.player_sprite.center_x < 1):
+                self.change_map("map4.tmj")
+        if (self.map_name == "map4.tmj"):
+            if (self.player_sprite.center_x > 37):
+                self.change_map("map2.tmj")
+
 
     def change_map(self, map_name: str):
         """
-        Updates the map, and changes the player position
+        Updates the map to the given map name, and changes the player position
 
         PARAMETERS
         map_name (string): Fills in the file path as such: rf"views/maps-data/{map_name}"
@@ -364,7 +373,6 @@ class GameView(View):
 
         self.camera.move_to(player_centered, speed)
     """
-
     
     def on_update(self, delta_time):
 
@@ -408,7 +416,7 @@ class GameView(View):
         angle = math.atan2(dy, dx) + 1.5708  # Calculate the angle between the two sprites
         self.player_sprite.angle = math.degrees(angle)  # Convert the angle to degrees
 
-         
+        self.detect_map_change()         
         #Movement and game logic
 
         # Move the player with the physics engine
