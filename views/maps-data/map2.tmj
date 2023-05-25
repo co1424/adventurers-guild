@@ -6,8 +6,6 @@
          "id":3,
          "image":"..\/..\/assets\/tilesets\/binary_floor.png",
          "name":"Floor",
-         "offsetx":0,
-         "offsety":1,
          "opacity":1,
          "type":"imagelayer",
          "visible":true,
