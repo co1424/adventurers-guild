@@ -99,7 +99,7 @@ class GameView(View):
         #self.gui_camera = arcade.Camera(self.window.width, self.window.height)
 
         # SET STARTING MAP:
-        map_name = "views/maps-data/map5.tmj"
+        map_name = "views/maps-data/map2.tmj"
 
         # Layer Specific Options for the Tilemap
         layer_options = {
@@ -140,7 +140,7 @@ class GameView(View):
         #self.player_sprite.center_x = 1216 - self.player_sprite.width // 2
         #self.player_sprite.center_y = 800 - self.player_sprite.height // 2
         #self.player_list.append(self.player_sprite)
-
+        """
         # Shooting mechanics
         self.can_shoot = True
         self.shoot_timer = 0
@@ -559,6 +559,15 @@ class GameView(View):
         for collision in player_collision_list:
 
             if self.scene.get_sprite_list(LAYER_NAME_ENEMIES) in collision.sprite_lists:
+                #game over and restart
+                GameView.setup(self)
+                self.player_sprite.change_x = 0
+                self.player_sprite.change_y = 0
+                self.right_pressed = False
+                self.left_pressed = False
+                self.down_pressed = False
+                self.up_pressed = False
+                self.player_sprite.update()    
                 arcade.play_sound(self.game_over)
                 self.window.show_view(self.window.views["game_over"])
                 return
