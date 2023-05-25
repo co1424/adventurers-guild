@@ -123,7 +123,7 @@ class GameView(View):
             self.window.views["game_over"] = GameOverView()
 
         # Load in TileMap
-        self.tile_map = arcade.load_tilemap(f"views/maps-data/{self.map_name}", TILE_SCALING, layer_options)
+        self.tile_map = arcade.load_tilemap(rf"views/maps-data/{self.map_name}", TILE_SCALING, layer_options)
 
         # Initiate New Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.
@@ -256,9 +256,7 @@ class GameView(View):
 
         PARAMETERS
         map_name (string): Fills in the file path as such: rf"views/maps-data/{map_name}"
-        """
-        # SET NEW MAP:
-        map_name = rf"views/maps-data/{map_name}"
+        """       
 
         # Layer Specific Options for the Tilemap
         layer_options = {
@@ -268,7 +266,7 @@ class GameView(View):
         }
             
         # Load in TileMap
-        self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING, layer_options)
+        self.tile_map = arcade.load_tilemap(rf"views/maps-data/{map_name}", TILE_SCALING, layer_options)
 
         # Initiate New Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.
@@ -292,6 +290,47 @@ class GameView(View):
         # Else the player must have entered a door on the left or right, so keep the y value
 
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
+
+        # -- Enemies
+        enemies_layer = self.tile_map.object_lists[LAYER_NAME_ENEMIES]
+
+        for my_object in enemies_layer:
+            cartesian = self.tile_map.get_cartesian(
+                my_object.shape[0], my_object.shape[1]
+            )
+            enemy_type = my_object.properties["type"]
+
+            if enemy_type == "basic":
+                enemy = Basic_Enemy()
+            enemy.center_x = math.floor(
+                cartesian[0] * TILE_SCALING * self.tile_map.tile_width
+            )
+            enemy.center_y = math.floor(
+                (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
+            )
+            """if "boundary_left" in my_object.properties:
+                enemy.boundary_left = my_object.properties["boundary_left"]
+            if "boundary_right" in my_object.properties:
+                enemy.boundary_right = my_object.properties["boundary_right"]"""
+            if "change_x" in my_object.properties:
+                enemy.change_x = my_object.properties["change_x"]
+            self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
+        """
+        # Add bullet spritelist to Scene
+        self.scene.add_sprite_list(LAYER_NAME_BULLETS)
+
+        # --- Other stuff
+        # Set the background color
+        if self.tile_map.tiled_map.background_color:
+            arcade.set_background_color(self.tile_map.tiled_map.background_color)
+        """
+    
+        # Create the 'physics engine'
+        self.physics_engine = arcade.PhysicsEnginePlatformer(
+            self.player_sprite,
+            gravity_constant=GRAVITY,
+            walls=self.scene.get_sprite_list(LAYER_NAME_WALLS)
+            )
 
     """
     def process_keychange(self):
