@@ -235,10 +235,10 @@ class GameView(View):
         self.physics_engine.add_sprite_list(
             self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
             friction=0.6,
-            moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
-            damping=0.01,
+            #moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
+            damping=1,
             collision_type="enemy",
-            max_velocity=300
+            #max_velocity=300
         )
 
 
