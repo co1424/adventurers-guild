@@ -27,7 +27,7 @@ FRICTION = 0.35
 class GameView(View):
 
     # SET STARTING MAP:
-    map_name = "map2.tmj"
+    map_name = "map5.tmj"
 
     def __init__(self):
         """
@@ -242,12 +242,43 @@ class GameView(View):
         #     self.player_sprite.draw_hit_box(arcade.color.RED, 3)
 
     def detect_map_change(self):
-        if (self.map_name == "map2.tmj"):
-            if (self.player_sprite.center_x < 1):
+        # Current Map: Map1
+        if (self.map_name == "map1.tmj"):
+            if (self.player_sprite.center_y < 1): # Bottom Door
                 self.change_map("map4.tmj")
-        if (self.map_name == "map4.tmj"):
-            if (self.player_sprite.center_x > 37):
+            if (self.player_sprite.center_x > SCREEN_WIDTH - 1): # Right Door
                 self.change_map("map2.tmj")
+
+        # Current Map: Map2
+        if (self.map_name == "map2.tmj"):
+            if (self.player_sprite.center_x < 1): # Left Door
+                self.change_map("map1.tmj")
+
+        # Current Map: Map3
+        if (self.map_name == "map3.tmj"):
+            if (self.player_sprite.center_y < 1): # Bottom Door
+                self.change_map("map6.tmj")
+
+        # Current Map: Map4
+        if (self.map_name == "map4.tmj"):
+            if (self.player_sprite.center_x > SCREEN_WIDTH - 1): # Right Door
+                self.change_map("map5.tmj")
+            if (self.player_sprite.center_y > SCREEN_HEIGHT - 1): # Top Door
+                self.change_map("map1.tmj")
+
+        # Current Map: Map5
+        if (self.map_name == "map5.tmj"):
+            if (self.player_sprite.center_x < 1): # Left Door
+                self.change_map("map4.tmj")
+            if (self.player_sprite.center_x > SCREEN_WIDTH - 1): # Right Door
+                self.change_map("map6.tmj")
+
+        # Current Map: Map6
+        if (self.map_name == "map6.tmj"):
+            if (self.player_sprite.center_x < 1): # Left Door
+                self.change_map("map5.tmj")
+            if (self.player_sprite.center_y > SCREEN_HEIGHT - 1): # Top Door
+                self.change_map("map3.tmj")
 
 
     def change_map(self, map_name: str):
@@ -257,6 +288,8 @@ class GameView(View):
         PARAMETERS
         map_name (string): Fills in the file path as such: rf"views/maps-data/{map_name}"
         """       
+
+        self.map_name = map_name
 
         # Layer Specific Options for the Tilemap
         layer_options = {
@@ -273,22 +306,22 @@ class GameView(View):
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
 
         # Set up the player at these coordinates. The unit of measurement is in tiles (Each map total width of 38, height of 25)
-        self.player_sprite = Player()
-
+        #self.player_sprite = Player()
+        
         # Check Player X position
-        if (self.player_sprite.center_x < SCREEN_TILE_WIDTH - ((2 / 3) * SCREEN_TILE_WIDTH)): # If player enters door on the left wall,
+        if (self.player_sprite.center_x < SCREEN_WIDTH - ((2 / 3) * SCREEN_WIDTH)): # If player enters door on the left wall,
             self.player_sprite.center_x = ((SCREEN_TILE_WIDTH - 3) * self.tile_map.tiled_map.tile_size[0]) # move them to the right
-        elif (self.player_sprite.center_x > SCREEN_TILE_WIDTH - ((1 / 3) * SCREEN_TILE_WIDTH)): # If player enters door on the right wall,
+        elif (self.player_sprite.center_x > SCREEN_WIDTH - ((1 / 3) * SCREEN_WIDTH)): # If player enters door on the right wall,
             self.player_sprite.center_x = (3 * self.tile_map.tiled_map.tile_size[0]) # move them to the left
         # Else the player must have entered a door on the top or bottom, so keep the x value
 
         # Check Player Y position
-        if (self.player_sprite.center_y < SCREEN_TILE_HEIGHT - ((2 / 3) * SCREEN_TILE_HEIGHT)): # If player enters door on the top wall,
-            self.player_sprite.center_y = (3 * self.tile_map.tiled_map.tile_size[1]) # move them to the bottom
-        elif (self.player_sprite.center_y > SCREEN_TILE_HEIGHT - ((1 / 3) * SCREEN_TILE_HEIGHT)):  # If player enters door on bottom wall,
-            self.player_sprite.center_y = ((SCREEN_TILE_HEIGHT - 3) * self.tile_map.tiled_map.tile_size[1]) # move them to the top
+        if (self.player_sprite.center_y < SCREEN_HEIGHT - ((2 / 3) * SCREEN_HEIGHT)): # If player enters door on the top wall,
+            self.player_sprite.center_y = ((SCREEN_TILE_HEIGHT - 3) * self.tile_map.tiled_map.tile_size[0]) # move them to the bottom
+        elif (self.player_sprite.center_y > SCREEN_HEIGHT - ((1 / 3) * SCREEN_HEIGHT)):  # If player enters door on bottom wall,
+            self.player_sprite.center_y = (1 * self.tile_map.tiled_map.tile_size[1]) # move them to the top
         # Else the player must have entered a door on the left or right, so keep the y value
-
+        
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
 
         # -- Enemies
