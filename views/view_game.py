@@ -25,7 +25,7 @@ ACCELERATION_RATE = 4000
 
 
 # How fast to slow down after we let off the key
-FRICTION = 0.35
+FRICTION = 0.08
 
 class GameView(View):
 
