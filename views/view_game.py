@@ -18,7 +18,7 @@ from arcade.pymunk_physics_engine import PymunkPhysicsEngine
 
 
 # Speed limit
-MAX_SPEED = 8.0
+MAX_SPEED = 4.0
 
 # How fast we accelerate
 ACCELERATION_RATE = 4000
