@@ -14,12 +14,15 @@ from views.view import View
 
 from views.view_game_over import GameOverView
 
+from arcade.pymunk_physics_engine import PymunkPhysicsEngine
+
 
 # Speed limit
 MAX_SPEED = 8.0
 
 # How fast we accelerate
-ACCELERATION_RATE = 0.6
+ACCELERATION_RATE = 4000
+
 
 # How fast to slow down after we let off the key
 FRICTION = 0.35
@@ -84,6 +87,8 @@ class GameView(View):
         self.game_over = arcade.load_sound(":resources:sounds/gameover1.wav")
         self.shoot_sound = arcade.load_sound(":resources:sounds/hurt5.wav")
         self.hit_sound = arcade.load_sound(":resources:sounds/hit5.wav")
+
+
 
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
@@ -194,11 +199,48 @@ class GameView(View):
             arcade.set_background_color(self.tile_map.tiled_map.background_color)
         """
     
-        # Create the 'physics engine'
+        # Create the 'physics engine'\
+        
+        """
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite,
             gravity_constant=GRAVITY,
             walls=self.scene.get_sprite_list(LAYER_NAME_WALLS)
+        )"""
+        
+
+        self.physics_engine = arcade.PymunkPhysicsEngine()
+
+        def enemy_player_handler(sprite_a, sprite_b, arbiter, space, data):
+            arcade.play_sound(self.game_over)
+            self.window.show_view(self.window.views["game_over"])
+
+        self.physics_engine.add_collision_handler("player", "enemy", post_handler=enemy_player_handler)
+
+        self.physics_engine.add_sprite(
+            self.player_sprite,
+            friction=0.6,
+            moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
+            damping=0.01,
+            collision_type="player",
+            max_velocity=400
+        )
+
+
+        self.physics_engine.add_sprite_list(
+            self.scene.get_sprite_list(LAYER_NAME_WALLS),
+            friction=0.6,
+            collision_type="wall",
+            body_type=PymunkPhysicsEngine.STATIC
+        )
+
+        self.physics_engine.add_sprite_list(
+            self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
+            friction=0.6,
+            #moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
+            damping=1,
+            collision_type="enemy",
+            #max_velocity=300
         )
 
 
@@ -220,10 +262,8 @@ class GameView(View):
         # Draw our Scene
         self.scene.draw()
 
-        self.player_sprite.draw()
-
         # Activate the GUI camera before drawing GUI elements
-        #self.gui_camera.use()
+        # self.gui_camera.use()
 
         # Draw our score on the screen, scrolling it with the viewport
         score_text = f"Score: {self.score}"
@@ -447,7 +487,8 @@ class GameView(View):
     """
     
     def on_update(self, delta_time):
-
+        changeY = 0.0
+        changeX = 0.0
         # Add some friction
         if self.player_sprite.change_x > FRICTION:
             self.player_sprite.change_x -= FRICTION
@@ -463,22 +504,17 @@ class GameView(View):
             self.player_sprite.change_y = 0
         # Apply acceleration based on the keys pressed
         if self.up_pressed and not self.down_pressed:
-            self.player_sprite.change_y += ACCELERATION_RATE
+            force = (0, ACCELERATION_RATE)
+            self.physics_engine.apply_force(self.player_sprite, force)
         elif self.down_pressed and not self.up_pressed:
-            self.player_sprite.change_y += -ACCELERATION_RATE
+            force = (0, -ACCELERATION_RATE)
+            self.physics_engine.apply_force(self.player_sprite, force)
         if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x += -ACCELERATION_RATE
+            force = (-ACCELERATION_RATE, 0)
+            self.physics_engine.apply_force(self.player_sprite, force)
         elif self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x += ACCELERATION_RATE
-        if self.player_sprite.change_x > MAX_SPEED:
-            self.player_sprite.change_x = MAX_SPEED
-        elif self.player_sprite.change_x < -MAX_SPEED:
-            self.player_sprite.change_x = -MAX_SPEED
-        if self.player_sprite.change_y > MAX_SPEED:
-            self.player_sprite.change_y = MAX_SPEED
-        elif self.player_sprite.change_y < -MAX_SPEED:
-            self.player_sprite.change_y = -MAX_SPEED
-        #self.player_sprite.update()
+            force = (ACCELERATION_RATE, 0)
+            self.physics_engine.apply_force(self.player_sprite, force)
 
         dx = self.player_sprite.center_x - self.mouse_pos[0]
         dy = self.player_sprite.center_y - self.mouse_pos[1]
@@ -487,12 +523,12 @@ class GameView(View):
 
         angle = math.atan2(dy, dx) + 1.5708  # Calculate the angle between the two sprites
         self.player_sprite.angle = math.degrees(angle)  # Convert the angle to degrees
+        
 
         self.detect_map_change()         
         #Movement and game logic
-
         # Move the player with the physics engine
-        self.physics_engine.update()
+        # self.physics_engine.resync_sprites()
         """
         # Update animations
         if self.physics_engine.can_jump():
@@ -543,11 +579,8 @@ class GameView(View):
             ],
         )
         """
-        # Update moving platforms, enemies, and bullets
-        self.scene.update(
-            [LAYER_NAME_ENEMIES]
-        )
-        # See if the enemy hit a boundary and needs to reverse direction.
+        self.physics_engine.step()
+
         for enemy in self.scene.get_sprite_list(LAYER_NAME_ENEMIES):
             # Update the enemy's position to follow the player
             dx = self.player_sprite.center_x - enemy.center_x
@@ -559,8 +592,9 @@ class GameView(View):
             velocity_x = BASIC_ENEMY_SPEED * math.cos(angle)
             velocity_y = BASIC_ENEMY_SPEED * math.sin(angle)
             # Update the enemy's position
-            enemy.center_x += velocity_x
-            enemy.center_y += velocity_y
+            force = (velocity_x, velocity_y)
+            self.physics_engine.set_velocity(enemy, force)
+            
             # Update the rotation of the enemy sprite to face the player sprite
             angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
             enemy.angle = math.degrees(angle)  # Convert the angle to degrees
