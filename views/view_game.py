@@ -23,10 +23,15 @@ MAX_SPEED = 4.0
 # How fast we accelerate
 ACCELERATION_RATE = 4000
 
+
 # How fast to slow down after we let off the key
 FRICTION = 0.08
 
 class GameView(View):
+
+    # SET STARTING MAP:
+    map_name = "map5.tmj"
+
     def __init__(self):
         """
         Initializer for the game
@@ -102,9 +107,6 @@ class GameView(View):
         #self.camera = arcade.Camera(self.window.width, self.window.height)
         #self.gui_camera = arcade.Camera(self.window.width, self.window.height)
 
-        # SET STARTING MAP:
-        map_name = "views/maps-data/map2.tmj"
-
         # Layer Specific Options for the Tilemap
         layer_options = {
             LAYER_NAME_WALLS: {
@@ -126,7 +128,7 @@ class GameView(View):
             self.window.views["game_over"] = GameOverView()
 
         # Load in TileMap
-        self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING, layer_options)
+        self.tile_map = arcade.load_tilemap(rf"views/maps-data/{self.map_name}", TILE_SCALING, layer_options)
 
         # Initiate New Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.
@@ -279,16 +281,55 @@ class GameView(View):
         # 
         #     self.player_sprite.draw_hit_box(arcade.color.RED, 3)
 
+    def detect_map_change(self):
+        # Current Map: Map1
+        if (self.map_name == "map1.tmj"):
+            if (self.player_sprite.center_y < 1): # Bottom Door
+                self.change_map("map4.tmj")
+            if (self.player_sprite.center_x > SCREEN_WIDTH - 1): # Right Door
+                self.change_map("map2.tmj")
+
+        # Current Map: Map2
+        if (self.map_name == "map2.tmj"):
+            if (self.player_sprite.center_x < 1): # Left Door
+                self.change_map("map1.tmj")
+
+        # Current Map: Map3
+        if (self.map_name == "map3.tmj"):
+            if (self.player_sprite.center_y < 1): # Bottom Door
+                self.change_map("map6.tmj")
+
+        # Current Map: Map4
+        if (self.map_name == "map4.tmj"):
+            if (self.player_sprite.center_x > SCREEN_WIDTH - 1): # Right Door
+                self.change_map("map5.tmj")
+            if (self.player_sprite.center_y > SCREEN_HEIGHT - 1): # Top Door
+                self.change_map("map1.tmj")
+
+        # Current Map: Map5
+        if (self.map_name == "map5.tmj"):
+            if (self.player_sprite.center_x < 1): # Left Door
+                self.change_map("map4.tmj")
+            if (self.player_sprite.center_x > SCREEN_WIDTH - 1): # Right Door
+                self.change_map("map6.tmj")
+
+        # Current Map: Map6
+        if (self.map_name == "map6.tmj"):
+            if (self.player_sprite.center_x < 1): # Left Door
+                self.change_map("map5.tmj")
+            if (self.player_sprite.center_y > SCREEN_HEIGHT - 1): # Top Door
+                self.change_map("map3.tmj")
+
 
     def change_map(self, map_name: str):
         """
-        Updates the map, and changes the player position
+        Updates the map to the given map name, and changes the player position
 
         PARAMETERS
         map_name (string): Fills in the file path as such: rf"views/maps-data/{map_name}"
-        """
-        # SET NEW MAP:
-        map_name = rf"views/maps-data/{map_name}"
+        """       
+
+        self.map_name = map_name
 
         # Layer Specific Options for the Tilemap
         layer_options = {
@@ -298,30 +339,71 @@ class GameView(View):
         }
             
         # Load in TileMap
-        self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING, layer_options)
+        self.tile_map = arcade.load_tilemap(rf"views/maps-data/{map_name}", TILE_SCALING, layer_options)
 
         # Initiate New Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
 
         # Set up the player at these coordinates. The unit of measurement is in tiles (Each map total width of 38, height of 25)
-        self.player_sprite = Player()
-
+        #self.player_sprite = Player()
+        
         # Check Player X position
-        if (self.player_sprite.center_x < SCREEN_TILE_WIDTH - ((2 / 3) * SCREEN_TILE_WIDTH)): # If player enters door on the left wall,
+        if (self.player_sprite.center_x < SCREEN_WIDTH - ((2 / 3) * SCREEN_WIDTH)): # If player enters door on the left wall,
             self.player_sprite.center_x = ((SCREEN_TILE_WIDTH - 3) * self.tile_map.tiled_map.tile_size[0]) # move them to the right
-        elif (self.player_sprite.center_x > SCREEN_TILE_WIDTH - ((1 / 3) * SCREEN_TILE_WIDTH)): # If player enters door on the right wall,
+        elif (self.player_sprite.center_x > SCREEN_WIDTH - ((1 / 3) * SCREEN_WIDTH)): # If player enters door on the right wall,
             self.player_sprite.center_x = (3 * self.tile_map.tiled_map.tile_size[0]) # move them to the left
         # Else the player must have entered a door on the top or bottom, so keep the x value
 
         # Check Player Y position
-        if (self.player_sprite.center_y < SCREEN_TILE_HEIGHT - ((2 / 3) * SCREEN_TILE_HEIGHT)): # If player enters door on the top wall,
-            self.player_sprite.center_y = (3 * self.tile_map.tiled_map.tile_size[1]) # move them to the bottom
-        elif (self.player_sprite.center_y > SCREEN_TILE_HEIGHT - ((1 / 3) * SCREEN_TILE_HEIGHT)):  # If player enters door on bottom wall,
-            self.player_sprite.center_y = ((SCREEN_TILE_HEIGHT - 3) * self.tile_map.tiled_map.tile_size[1]) # move them to the top
+        if (self.player_sprite.center_y < SCREEN_HEIGHT - ((2 / 3) * SCREEN_HEIGHT)): # If player enters door on the top wall,
+            self.player_sprite.center_y = ((SCREEN_TILE_HEIGHT - 3) * self.tile_map.tiled_map.tile_size[0]) # move them to the bottom
+        elif (self.player_sprite.center_y > SCREEN_HEIGHT - ((1 / 3) * SCREEN_HEIGHT)):  # If player enters door on bottom wall,
+            self.player_sprite.center_y = (1 * self.tile_map.tiled_map.tile_size[1]) # move them to the top
         # Else the player must have entered a door on the left or right, so keep the y value
-
+        
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
+
+        # -- Enemies
+        enemies_layer = self.tile_map.object_lists[LAYER_NAME_ENEMIES]
+
+        for my_object in enemies_layer:
+            cartesian = self.tile_map.get_cartesian(
+                my_object.shape[0], my_object.shape[1]
+            )
+            enemy_type = my_object.properties["type"]
+
+            if enemy_type == "basic":
+                enemy = Basic_Enemy()
+            enemy.center_x = math.floor(
+                cartesian[0] * TILE_SCALING * self.tile_map.tile_width
+            )
+            enemy.center_y = math.floor(
+                (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
+            )
+            """if "boundary_left" in my_object.properties:
+                enemy.boundary_left = my_object.properties["boundary_left"]
+            if "boundary_right" in my_object.properties:
+                enemy.boundary_right = my_object.properties["boundary_right"]"""
+            if "change_x" in my_object.properties:
+                enemy.change_x = my_object.properties["change_x"]
+            self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
+        """
+        # Add bullet spritelist to Scene
+        self.scene.add_sprite_list(LAYER_NAME_BULLETS)
+
+        # --- Other stuff
+        # Set the background color
+        if self.tile_map.tiled_map.background_color:
+            arcade.set_background_color(self.tile_map.tiled_map.background_color)
+        """
+    
+        # Create the 'physics engine'
+        self.physics_engine = arcade.PhysicsEnginePlatformer(
+            self.player_sprite,
+            gravity_constant=GRAVITY,
+            walls=self.scene.get_sprite_list(LAYER_NAME_WALLS)
+            )
 
     """
     def process_keychange(self):
@@ -403,7 +485,6 @@ class GameView(View):
 
         self.camera.move_to(player_centered, speed)
     """
-
     
     def on_update(self, delta_time):
         changeY = 0.0
@@ -444,7 +525,7 @@ class GameView(View):
         self.player_sprite.angle = math.degrees(angle)  # Convert the angle to degrees
         
 
-         
+        self.detect_map_change()         
         #Movement and game logic
         # Move the player with the physics engine
         # self.physics_engine.resync_sprites()
