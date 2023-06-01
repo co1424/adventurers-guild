@@ -48,3 +48,10 @@ LAYER_NAME_ENEMIES = "Enemies"
 LAYER_NAME_BULLETS = "Bullets"
 
 BASIC_ENEMY_SPEED = 2
+
+# Swinging constant for weapons:
+SWING_SPEED = 0.5
+SWING_FRAME_COUNT = 8
+
+# Key constant for triggering swinging
+KEY_SPACE = "space"

@@ -1,4 +1,4 @@
-from constants import LEFT_FACING, RIGHT_FACING
+from constants import LEFT_FACING, RIGHT_FACING, SWING_SPEED, SWING_FRAME_COUNT, KEY_SPACE
 from entities.entity import Entity
 
 
@@ -19,6 +19,24 @@ class Player(Entity):
         self.jumping = False
         self.climbing = False
         self.is_on_ladder = False
+        
+        # Track swinging animation state
+        self.is_swinging = False
+        self.swing_direction = RIGHT_FACING
+        self.swing_progress = 0
+        
+    
+    
+    def handle_input(self):
+        from views.view_game import on_key_press 
+        # Check for the input that triggers swinging
+        if on_key_press.is_key_pressed(KEY_SPACE):
+            self.start_swing_animation()
+
+    def start_swing_animation(self):
+        if not self.is_swinging:
+            self.is_swinging = True
+            self.swing_progress = 0
 
     def update_animation(self, delta_time: float = 1 / 60):
 
@@ -39,6 +57,19 @@ class Player(Entity):
                 self.cur_texture = 0
         if self.climbing:
             self.texture = self.climbing_textures[self.cur_texture // 4]
+            return
+        
+        # Swing animation
+        if self.is_swinging:
+            self.swing_progress += delta_time * SWING_SPEED
+
+            if self.swing_progress < 0.5:
+                self.swing_direction = RIGHT_FACING
+            else:
+                self.swing_direction = LEFT_FACING
+
+            swing_frame = int(self.swing_progress * SWING_FRAME_COUNT) % SWING_FRAME_COUNT
+            self.weapon_texture = self.swing_textures[swing_frame][self.swing_direction]
             return
 
         # Jumping animation
