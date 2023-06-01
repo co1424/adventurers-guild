@@ -279,7 +279,7 @@ class GameView(View):
         # for wall in self.wall_list:
         #     wall.draw_hit_box(arcade.color.BLACK, 3)
         # 
-        #     self.player_sprite.draw_hit_box(arcade.color.RED, 3)
+        self.player_sprite.draw_hit_box(arcade.color.RED, 3)
 
     def detect_map_change(self):
         # Current Map: Map1
@@ -397,13 +397,40 @@ class GameView(View):
         if self.tile_map.tiled_map.background_color:
             arcade.set_background_color(self.tile_map.tiled_map.background_color)
         """
-    
-        # Create the 'physics engine'
-        self.physics_engine = arcade.PhysicsEnginePlatformer(
+        self.physics_engine = arcade.PymunkPhysicsEngine()
+
+        def enemy_player_handler(sprite_a, sprite_b, arbiter, space, data):
+            arcade.play_sound(self.game_over)
+            self.window.show_view(self.window.views["game_over"])
+
+        self.physics_engine.add_collision_handler("player", "enemy", post_handler=enemy_player_handler)
+
+        self.physics_engine.add_sprite(
             self.player_sprite,
-            gravity_constant=GRAVITY,
-            walls=self.scene.get_sprite_list(LAYER_NAME_WALLS)
-            )
+            friction=0.6,
+            moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
+            damping=0.01,
+            collision_type="player",
+            max_velocity=400
+        )
+
+
+        self.physics_engine.add_sprite_list(
+            self.scene.get_sprite_list(LAYER_NAME_WALLS),
+            friction=0.6,
+            collision_type="wall",
+            body_type=PymunkPhysicsEngine.STATIC
+        )
+
+        self.physics_engine.add_sprite_list(
+            self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
+            friction=0.6,
+            #moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
+            damping=1,
+            collision_type="enemy",
+            #max_velocity=300
+        )
+
 
     """
     def process_keychange(self):
@@ -487,6 +514,7 @@ class GameView(View):
     """
     
     def on_update(self, delta_time):
+
         changeY = 0.0
         changeX = 0.0
         # Add some friction
