@@ -1,5 +1,6 @@
 from constants import LEFT_FACING, RIGHT_FACING
 from entities.entity import Entity
+import arcade
 
 
 class Player(Entity):
@@ -12,6 +13,7 @@ class Player(Entity):
 
         # Set up parent class
         scale = .1
+        self.health = 10
 
         super().__init__(folder, file_prefix, scale)
 
@@ -19,6 +21,43 @@ class Player(Entity):
         self.jumping = False
         self.climbing = False
         self.is_on_ladder = False
+        self.invulnerable = False
+    
+    def change_health(self, value):
+        '''
+        Used to modify the player's health by the given value.
+        
+        PARAMETERS:
+
+        value = the given amount to add to player health. Positive values add health, negative values subtract health.
+        '''
+        self.health += value
+
+    
+    def get_health(self):
+        return self.health
+    
+
+    def set_invulnerable_seconds(self, seconds):
+        '''
+        Sets the amount of time (seconds) for the player to be invulnerable
+        
+        PARAMETERS:
+
+        seconds = time to be invulnerable
+        '''
+        self.invulnerable = True
+        arcade.unschedule(self.disable_invulnerability)  # Cancel any previous invulnerability timer to make sure the timer resets
+        arcade.schedule(self.disable_invulnerability, seconds)
+
+    
+    def disable_invulnerability(self, _):
+        self.invulnerable = False
+
+
+    def is_Invulnerable(self):
+        return self.invulnerable
+
 
     def update_animation(self, delta_time: float = 1 / 60):
 
