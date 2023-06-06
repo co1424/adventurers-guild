@@ -8,12 +8,13 @@ class Player(Entity):
 
     def __init__(self):
 
-        folder = "Sprite/Player"
-        file_prefix = "character"
+        folder = "assets/Sprite/Player"
+        file_prefix = "player"
 
         # Set up parent class
-        scale = .1
+
         self.health = 10
+        scale = 1
 
         super().__init__(folder, file_prefix, scale)
 
