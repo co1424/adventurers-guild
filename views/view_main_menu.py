@@ -39,8 +39,8 @@ class MainMenuView(View):
 
         @play_button.event("on_click")
         def on_click_play(event):
-            if "game" not in self.window.views:
-                    self.window.views["game"] = GameView()
+            #if "game" not in self.window.views:
+            self.window.views["game"] = GameView()
                     #self.window.views["game_over"] = GameOverView()
                     #self.window.views["pause"] = PauseView()
             self.window.show_view(self.window.views["game"])
