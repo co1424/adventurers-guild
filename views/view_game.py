@@ -209,39 +209,7 @@ class GameView(View):
         )"""
         
 
-        self.physics_engine = arcade.PymunkPhysicsEngine()
-
-        def enemy_player_handler(sprite_a, sprite_b, arbiter, space, data):
-            arcade.play_sound(self.game_over)
-            self.window.show_view(self.window.views["game_over"])
-
-        self.physics_engine.add_collision_handler("player", "enemy", post_handler=enemy_player_handler)
-
-        self.physics_engine.add_sprite(
-            self.player_sprite,
-            friction=0.6,
-            moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
-            damping=0.01,
-            collision_type="player",
-            max_velocity=400
-        )
-
-
-        self.physics_engine.add_sprite_list(
-            self.scene.get_sprite_list(LAYER_NAME_WALLS),
-            friction=0.6,
-            collision_type="wall",
-            body_type=PymunkPhysicsEngine.STATIC
-        )
-
-        self.physics_engine.add_sprite_list(
-            self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
-            friction=0.6,
-            #moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
-            damping=1,
-            collision_type="enemy",
-            #max_velocity=300
-        )
+        self.setup_physics_engine()
 
 
 
@@ -279,7 +247,7 @@ class GameView(View):
         # for wall in self.wall_list:
         #     wall.draw_hit_box(arcade.color.BLACK, 3)
         # 
-        self.player_sprite.draw_hit_box(arcade.color.RED, 3)
+        # self.player_sprite.draw_hit_box(arcade.color.RED, 3)
 
     def detect_map_change(self):
         # Current Map: Map1
@@ -397,6 +365,9 @@ class GameView(View):
         if self.tile_map.tiled_map.background_color:
             arcade.set_background_color(self.tile_map.tiled_map.background_color)
         """
+        self.setup_physics_engine()
+    
+    def setup_physics_engine(self):
         self.physics_engine = arcade.PymunkPhysicsEngine()
 
         def enemy_player_handler(sprite_a, sprite_b, arbiter, space, data):
@@ -422,13 +393,14 @@ class GameView(View):
             body_type=PymunkPhysicsEngine.STATIC
         )
 
-        self.physics_engine.add_sprite_list(
-            self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
-            friction=0.6,
-            #moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
-            damping=1,
-            collision_type="enemy",
-            #max_velocity=300
+        for enemy in self.scene.get_sprite_list(LAYER_NAME_ENEMIES):
+            self.physics_engine.add_sprite(
+                enemy,
+                friction=0.6,
+                moment_of_intertia=PymunkPhysicsEngine.MOMENT_INF,
+                damping=0.01,
+                collision_type="enemy",
+                max_velocity=200
         )
 
 
@@ -514,9 +486,7 @@ class GameView(View):
     """
     
     def on_update(self, delta_time):
-
-        changeY = 0.0
-        changeX = 0.0
+        self.physics_engine.step()
         # Add some friction
         if self.player_sprite.change_x > FRICTION:
             self.player_sprite.change_x -= FRICTION
@@ -557,20 +527,8 @@ class GameView(View):
         #Movement and game logic
         # Move the player with the physics engine
         # self.physics_engine.resync_sprites()
+        
         """
-        # Update animations
-        if self.physics_engine.can_jump():
-            self.player_sprite.can_jump = False
-        else:
-            self.player_sprite.can_jump = True
-
-        if self.physics_engine.is_on_ladder() and not self.physics_engine.can_jump():
-            self.player_sprite.is_on_ladder = True
-            self.process_keychange()
-        else:
-            self.player_sprite.is_on_ladder = False
-            self.process_keychange()
-
         if self.can_shoot:
             if self.shoot_pressed:
                 arcade.play_sound(self.shoot_sound)
@@ -607,7 +565,6 @@ class GameView(View):
             ],
         )
         """
-        self.physics_engine.step()
 
         for enemy in self.scene.get_sprite_list(LAYER_NAME_ENEMIES):
             # Update the enemy's position to follow the player
@@ -621,7 +578,7 @@ class GameView(View):
             velocity_y = BASIC_ENEMY_SPEED * math.sin(angle)
             # Update the enemy's position
             force = (velocity_x, velocity_y)
-            self.physics_engine.set_velocity(enemy, force)
+            self.physics_engine.apply_force(enemy, force)
             
             # Update the rotation of the enemy sprite to face the player sprite
             angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
