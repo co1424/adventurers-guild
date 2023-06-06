@@ -29,8 +29,6 @@ FRICTION = 0.08
 
 class GameView(View):
 
-    # SET STARTING MAP:
-    map_name = "map5.tmj"
 
     def __init__(self):
         """
@@ -38,6 +36,9 @@ class GameView(View):
         """
         super().__init__()
 
+        # SET STARTING MAP:
+        self.map_name = "map5.tmj"
+        
         self.player_sprite = None
         self.game_over = False
         self.keys_pressed = set()
@@ -213,6 +214,7 @@ class GameView(View):
 
 
 
+
     """
     def on_show_view(self):
         arcade.set_background_color(self.tile_map.background_color)
@@ -237,9 +239,19 @@ class GameView(View):
         score_text = f"Score: {self.score}"
         arcade.draw_text(
             score_text,
-            10,
-            10,
-            arcade.csscolor.BLACK,
+            40,
+            8,
+            arcade.csscolor.MEDIUM_PURPLE,
+            18,
+        )
+
+        # Draw our health on the screen, scrolling it with the viewport
+        health_text = f"Health: {self.player_sprite.get_health()}"
+        arcade.draw_text(
+            health_text,
+            200,
+            8,
+            arcade.csscolor.MEDIUM_PURPLE,
             18,
         )
 
@@ -655,6 +667,7 @@ class GameView(View):
                 bullet.remove_from_sprite_lists()
         """
         # Loop through each coin we hit (if any) and remove it
+        """
         for collision in player_collision_list:
 
             if self.scene.get_sprite_list(LAYER_NAME_ENEMIES) in collision.sprite_lists:
@@ -670,7 +683,7 @@ class GameView(View):
                 arcade.play_sound(self.game_over)
                 self.window.show_view(self.window.views["game_over"])
                 return
-            """
+            
             else:
                 # Figure out how many points this coin is worth
                 if "Points" not in collision.properties:
@@ -682,7 +695,7 @@ class GameView(View):
                 # Remove the coin
                 collision.remove_from_sprite_lists()
                 arcade.play_sound(self.collect_coin_sound)
-            """
+        """
 
         # Position the camera
         # self.center_camera_to_player()
