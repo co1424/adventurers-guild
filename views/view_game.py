@@ -18,15 +18,6 @@ from views.view_game_over import GameOverView
 from arcade.pymunk_physics_engine import PymunkPhysicsEngine
 
 
-# Speed limit
-MAX_SPEED = 4.0
-
-# How fast we accelerate
-ACCELERATION_RATE = 4000
-
-
-# How fast to slow down after we let off the key
-FRICTION = 0.08
 
 class GameView(View):
 
@@ -165,6 +156,7 @@ class GameView(View):
         self.player_sprite.center_y = (
             3 * self.tile_map.tiled_map.tile_size[1] # Bottom of the screen (Y)
         )
+        self.player_sprite.angle = 0
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
         
         # Calculate the right edge of the my_map in pixels
@@ -346,6 +338,7 @@ class GameView(View):
         elif (self.player_sprite.center_y > SCREEN_HEIGHT - ((1 / 3) * SCREEN_HEIGHT)):  # If player enters door on bottom wall,
             self.player_sprite.center_y = (1 * self.tile_map.tiled_map.tile_size[1]) # move them to the top
         # Else the player must have entered a door on the left or right, so keep the y value
+        self.player_sprite.angle = 0
         
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
 
@@ -392,6 +385,25 @@ class GameView(View):
 
         def enemy_player_handler(sprite_a, sprite_b, arbiter, space, data):
             self.player_sprite.health -= BULLET_DAMAGE
+        def enemy_player_handler(player, enemy, arbiter, space, data):
+
+            dx = self.player_sprite.center_x - enemy.center_x
+            dy = self.player_sprite.center_y - enemy.center_y
+            angle = math.atan2(dy, dx)
+            # Calculate the velocity components based on the angle
+
+            velocity_x = BASIC_ENEMY_SPEED * math.cos(angle) * 20
+            velocity_y = BASIC_ENEMY_SPEED * math.sin(angle) * 20
+            # Update the enemy's position
+            force = (-velocity_x, -velocity_y)
+            self.physics_engine.apply_force(enemy, force)
+
+            self.physics_engine.apply_opposite_running_force(enemy)
+            if not self.player_sprite.is_Invulnerable():
+                self.player_sprite.change_health(-1)
+
+            self.player_sprite.set_invulnerable_seconds(.1)
+            self.player_sprite.color = arcade.color.RED
             if self.player_sprite.health <= 0:
                 arcade.play_sound(self.game_over)
                 self.window.show_view(self.window.views["game_over"])
@@ -425,7 +437,7 @@ class GameView(View):
                 moment_of_intertia=PymunkPhysicsEngine.MOMENT_INF,
                 damping=0.01,
                 collision_type="enemy",
-                max_velocity=200
+                #max_velocity=200
         )
         
 
