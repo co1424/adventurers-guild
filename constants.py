@@ -20,6 +20,8 @@ BULLET_DAMAGE = 25
 
 # Movement speed of player, in pixels per frame
 PLAYER_MOVEMENT_SPEED = 7
+ACCELERATION_RATE = 4000
+FRICTION = 0.08
 GRAVITY = 0
 PLAYER_JUMP_SPEED = 30
 
@@ -48,13 +50,12 @@ LAYER_NAME_ENEMIES = "Enemies"
 LAYER_NAME_BULLETS = "Bullets"
 LAYER_NAME_SWORD = "Sword"
 
-BASIC_ENEMY_SPEED = 2
+
+
 
 # Swinging constant for weapons:
 SWING_SPEED = 15
-SWING_FRAME_COUNT = 8
-
-# Key constant for triggering swinging
-KEY_SPACE = "space"
 
 SWORD_OFFSET = 40
+=======
+BASIC_ENEMY_SPEED = 1000

@@ -1,6 +1,8 @@
 from constants import LEFT_FACING, RIGHT_FACING, SWING_SPEED, SWING_FRAME_COUNT, KEY_SPACE
 from entities.entity import Entity
 from entities.sword import Sword
+import arcade
+
 
 
 class Player(Entity):
@@ -8,11 +10,13 @@ class Player(Entity):
 
     def __init__(self):
 
-        folder = "Sprite/Player"
-        file_prefix = "character"
+        folder = "assets/Sprite/Player"
+        file_prefix = "player"
 
         # Set up parent class
-        scale = .1
+
+        self.health = 10
+        scale = 1
 
         super().__init__(folder, file_prefix, scale)
 
@@ -20,11 +24,51 @@ class Player(Entity):
         self.jumping = False
         self.climbing = False
         self.is_on_ladder = False
+
         
         # Track swinging animation state
         self.is_swinging = False
         self.swing_direction = RIGHT_FACING
         self.swing_progress = 0
+
+        self.invulnerable = False
+    
+    def change_health(self, value):
+        '''
+        Used to modify the player's health by the given value.
+        
+        PARAMETERS:
+
+        value = the given amount to add to player health. Positive values add health, negative values subtract health.
+        '''
+        self.health += value
+
+    
+    def get_health(self):
+        return self.health
+    
+
+    def set_invulnerable_seconds(self, seconds):
+        '''
+        Sets the amount of time (seconds) for the player to be invulnerable
+        
+        PARAMETERS:
+
+        seconds = time to be invulnerable
+        '''
+        self.invulnerable = True
+        arcade.unschedule(self.disable_invulnerability)  # Cancel any previous invulnerability timer to make sure the timer resets
+        arcade.schedule(self.disable_invulnerability, seconds)
+
+    
+    def disable_invulnerability(self, _):
+        self.invulnerable = False
+
+
+    def is_Invulnerable(self):
+        return self.invulnerable
+
+
 
     def start_swing_animation(self):
         if not self.is_swinging:
