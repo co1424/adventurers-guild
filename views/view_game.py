@@ -11,6 +11,7 @@ from entities.player import Player
 from entities.enemy import Enemy
 from entities.basic_enemy import Basic_Enemy
 from views.view import View
+from entities.sword import Sword
 
 from views.view_game_over import GameOverView
 
@@ -33,6 +34,7 @@ class GameView(View):
         self.player_sprite = None
         self.game_over = False
         self.keys_pressed = set()
+        self.player_sword_activated = False
 
         # Track the current state of what key is pressed
         self.left_pressed = False
@@ -476,6 +478,17 @@ class GameView(View):
         elif key == arcade.key.D:
             self.right_pressed = True
 
+        if arcade.key.SPACE:
+            if not self.player_sword_activated:
+                sword = Sword(
+                    self.player_sprite.center_x,
+                    self.player_sprite.center_y,
+                    self.player_sprite.angle
+                    )
+                self.scene.add_sprite(LAYER_NAME_SWORD, sword)
+                self.player_sprite.start_swing_animation()
+                self.player_sword_activated = True
+
 
     
     def on_key_release(self, key, modifiers):
@@ -547,7 +560,34 @@ class GameView(View):
         self.player_sprite.angle = math.degrees(angle)  # Convert the angle to degrees
         
 
+
+        if self.player_sword_activated:
+            swords = self.scene.get_sprite_list(LAYER_NAME_SWORD)
+            enemies = self.scene.get_sprite_list(LAYER_NAME_ENEMIES)
+            for sword in swords:
+                for enemy in arcade.check_for_collision_with_list(sword, enemies):
+                    dx = self.player_sprite.center_x - enemy.center_x
+                    dy = self.player_sprite.center_y - enemy.center_y
+                    angle = math.atan2(dy, dx)
+                    enemy.angle = math.degrees(angle)
+                    # Calculate the velocity components based on the angle
+
+                    velocity_x = BASIC_ENEMY_SPEED * math.cos(angle) * 20
+                    velocity_y = BASIC_ENEMY_SPEED * math.sin(angle) * 20
+
+                    force = (-velocity_x, -velocity_y)
+                    self.physics_engine.apply_force(enemy, force)
+                    arcade.play_sound(self.hit_sound)
+            
+            progress = self.player_sprite.update_animation(sword)
+
+            if progress > 1:
+                self.scene.remove_sprite_list_by_name(LAYER_NAME_SWORD)
+                self.player_sword_activated = False
+                
+                
         self.detect_map_change()         
+
         #Movement and game logic
         # Move the player with the physics engine
         # self.physics_engine.resync_sprites()
@@ -607,6 +647,7 @@ class GameView(View):
             # Update the rotation of the enemy sprite to face the player sprite
             angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
             enemy.angle = math.degrees(angle)  # Convert the angle to degrees
+
 
         """
         # See if the moving wall hit a boundary and needs to reverse direction.
