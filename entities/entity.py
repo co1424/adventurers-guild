@@ -14,7 +14,7 @@ def load_texture_pair(filename):
 
 
 class Entity(arcade.Sprite):
-    def __init__(self, folder, file_prefix, scale):
+    def __init__(self, folder, file_prefix, scale=1):
         super().__init__()
 
         # Default to facing right

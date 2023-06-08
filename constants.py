@@ -46,12 +46,15 @@ LAYER_NAME_LADDERS = "Ladders"
 LAYER_NAME_PLAYER = "Player"
 LAYER_NAME_ENEMIES = "Enemies"
 LAYER_NAME_BULLETS = "Bullets"
+LAYER_NAME_SWORD = "Sword"
 
 BASIC_ENEMY_SPEED = 2
 
 # Swinging constant for weapons:
-SWING_SPEED = 0.5
+SWING_SPEED = 15
 SWING_FRAME_COUNT = 8
 
 # Key constant for triggering swinging
 KEY_SPACE = "space"
+
+SWORD_OFFSET = 40
