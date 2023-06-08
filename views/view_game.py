@@ -383,8 +383,6 @@ class GameView(View):
     def setup_physics_engine(self):
         self.physics_engine = arcade.PymunkPhysicsEngine()
 
-        def enemy_player_handler(sprite_a, sprite_b, arbiter, space, data):
-            self.player_sprite.health -= BULLET_DAMAGE
         def enemy_player_handler(player, enemy, arbiter, space, data):
 
             dx = self.player_sprite.center_x - enemy.center_x
@@ -437,7 +435,7 @@ class GameView(View):
                 moment_of_intertia=PymunkPhysicsEngine.MOMENT_INF,
                 damping=0.01,
                 collision_type="enemy",
-                #max_velocity=200
+                max_velocity=200
         )
         
 
