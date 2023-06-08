@@ -6,7 +6,7 @@ from entities.entity import Entity
 class Sword(Entity):
     def __init__(self, x, y, angle):
         folder = "Sprite/Player"
-        prefix = "sword"
+        prefix = "character"
         super().__init__(folder, prefix)
         angle_radians = math.radians(angle + 60)
         self.center_x = x + math.cos(angle_radians) * SWORD_OFFSET
