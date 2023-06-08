@@ -382,16 +382,24 @@ class GameView(View):
         if self.tile_map.tiled_map.background_color:
             arcade.set_background_color(self.tile_map.tiled_map.background_color)
         """
+
+
+        
         self.setup_physics_engine()
     
     def setup_physics_engine(self):
         self.physics_engine = arcade.PymunkPhysicsEngine()
 
         def enemy_player_handler(sprite_a, sprite_b, arbiter, space, data):
-            arcade.play_sound(self.game_over)
-            self.window.show_view(self.window.views["game_over"])
+            self.player_sprite.health -= BULLET_DAMAGE
+            if self.player_sprite.health <= 0:
+                arcade.play_sound(self.game_over)
+                self.window.show_view(self.window.views["game_over"])
 
         self.physics_engine.add_collision_handler("player", "enemy", post_handler=enemy_player_handler)
+
+
+
 
         self.physics_engine.add_sprite(
             self.player_sprite,
@@ -419,6 +427,7 @@ class GameView(View):
                 collision_type="enemy",
                 max_velocity=200
         )
+        
 
 
     """
@@ -604,7 +613,7 @@ class GameView(View):
             enemy.angle = math.degrees(angle)  # Convert the angle to degrees
 
 
-                    # Increase the enemy's timer
+        # Increase the enemy's timer
         self.enemy_timer += delta_time
 
         # Position the camera
@@ -640,8 +649,24 @@ class GameView(View):
             self.bullet_list.append(bullet)
 
         # Loop through each bullet
-        #for existing_bullet in self.bullet_list:
+        for existing_bullet in self.bullet_list:
             # Check if the bullet has gone off-screen. If so, delete the bullet
+                #if sprite_off_screen(existing_bullet):
+                    #existing_bullet.remove_from_sprite_lists()
+                    #continue
+
+                    # Check if the bullet has hit the player
+                if arcade.check_for_collision(existing_bullet, self.player_sprite):
+                    # Damage the player and remove the bullet
+                    self.player_sprite.health -= BULLET_DAMAGE
+                    existing_bullet.remove_from_sprite_lists()
+                    if self.player_sprite.health <= 0:
+                        arcade.play_sound(self.game_over)
+                        self.window.show_view(self.window.views["game_over"])
+                
+                if arcade.check_for_collision_with_list(existing_bullet, self.scene.get_sprite_list(LAYER_NAME_WALLS)):
+                    # when bullet hits wall, remove the bullet
+                    existing_bullet.remove_from_sprite_lists()
 
         """
         # See if the moving wall hit a boundary and needs to reverse direction.
