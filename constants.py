@@ -20,6 +20,8 @@ BULLET_DAMAGE = 25
 
 # Movement speed of player, in pixels per frame
 PLAYER_MOVEMENT_SPEED = 7
+ACCELERATION_RATE = 4000
+FRICTION = 0.08
 GRAVITY = 0
 PLAYER_JUMP_SPEED = 30
 
