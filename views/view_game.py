@@ -9,6 +9,7 @@ import arcade
 from constants import *
 from entities.player import Player
 from entities.enemy import Enemy
+from entities.bullet import Bullet
 from entities.basic_enemy import Basic_Enemy
 from views.view import View
 
@@ -76,6 +77,9 @@ class GameView(View):
         self.score = 0
 
         # Shooting mechanics
+        self.bullet_list = arcade.SpriteList()
+        self.enemy_timer = 0
+
         self.can_shoot = False
         self.shoot_timer = 0
 
@@ -255,6 +259,7 @@ class GameView(View):
             18,
         )
 
+        self.bullet_list.draw()
         # Draw hit boxes.
         # for wall in self.wall_list:
         #     wall.draw_hit_box(arcade.color.BLACK, 3)
@@ -540,6 +545,8 @@ class GameView(View):
         # Move the player with the physics engine
         # self.physics_engine.resync_sprites()
         
+        
+        
         """
         if self.can_shoot:
             if self.shoot_pressed:
@@ -595,6 +602,46 @@ class GameView(View):
             # Update the rotation of the enemy sprite to face the player sprite
             angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
             enemy.angle = math.degrees(angle)  # Convert the angle to degrees
+
+
+                    # Increase the enemy's timer
+        self.enemy_timer += delta_time
+
+        # Position the camera
+        # self.center_camera_to_player()
+                # Call updates on bullet sprites
+        self.bullet_list.on_update(delta_time)
+
+        # Check if the enemy can attack. If so, shoot a bullet from the
+        # enemy towards the player
+        if self.enemy_timer >= ENEMY_ATTACK_COOLDOWN:
+            self.enemy_timer = 0
+
+            # Create the bullet
+            bullet = Bullet()
+
+            # Set the bullet's position
+            bullet.position = enemy.position
+
+            # Set the bullet's angle to face the player
+            diff_x = self.player_sprite.center_x - enemy.center_x
+            diff_y = self.player_sprite.center_y - enemy.center_y
+            angle = math.atan2(diff_y, diff_x)
+            angle_deg = math.degrees(angle)
+            if angle_deg < 0:
+                angle_deg += 360
+            bullet.angle = angle_deg
+
+            # Give the bullet a velocity towards the player
+            bullet.change_x = math.cos(angle) * BULLET_SPEED
+            bullet.change_y = math.sin(angle) * BULLET_SPEED
+
+            # Add the bullet to the bullet list
+            self.bullet_list.append(bullet)
+
+        # Loop through each bullet
+        #for existing_bullet in self.bullet_list:
+            # Check if the bullet has gone off-screen. If so, delete the bullet
 
         """
         # See if the moving wall hit a boundary and needs to reverse direction.
@@ -696,6 +743,3 @@ class GameView(View):
                 collision.remove_from_sprite_lists()
                 arcade.play_sound(self.collect_coin_sound)
         """
-
-        # Position the camera
-        # self.center_camera_to_player()
