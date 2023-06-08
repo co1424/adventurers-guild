@@ -17,15 +17,6 @@ from views.view_game_over import GameOverView
 from arcade.pymunk_physics_engine import PymunkPhysicsEngine
 
 
-# Speed limit
-MAX_SPEED = 4.0
-
-# How fast we accelerate
-ACCELERATION_RATE = 4000
-
-
-# How fast to slow down after we let off the key
-FRICTION = 0.08
 
 class GameView(View):
 

@@ -24,7 +24,7 @@ class GameOverView(View):
         )
 
     def on_show_view(self):
-        arcade.set_background_color(arcade.color.RED_ORANGE)
+        arcade.set_background_color((53, 126, 199))
 
     def setup_buttons(self):
         self.v_box = arcade.gui.UIBoxLayout()
@@ -52,12 +52,22 @@ class GameOverView(View):
         arcade.start_render()
 
         arcade.draw_text(
-            "Game Over",
-            self.window.width / 2,
-            self.window.height - 125,
-            arcade.color.BLACK,
-            font_size=44,
-            anchor_x="center",
+            ":(",
+            self.window.width / 5,
+            self.window.height - 130,
+            arcade.color.WHITE,
+            font_size=100,
+            anchor_x="left",
+            anchor_y="center",
+        )
+
+        arcade.draw_text(
+            "Your PC ran into a problem because you died",
+            self.window.width / 5,
+            self.window.height - 250,
+            arcade.color.WHITE,
+            font_size=20,
+            anchor_x="left",
             anchor_y="center",
         )
 
