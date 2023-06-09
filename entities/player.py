@@ -1,4 +1,4 @@
-from constants import LEFT_FACING, RIGHT_FACING, SWING_SPEED, SWING_FRAME_COUNT, KEY_SPACE
+from constants import LEFT_FACING, RIGHT_FACING, SWING_SPEED
 from entities.entity import Entity
 from entities.sword import Sword
 import arcade
@@ -106,13 +106,14 @@ class Player(Entity):
             else:
                 self.swing_direction = LEFT_FACING
 
-            if self.swing_progress > 1:
-                self.is_swinging == False
-            
+            if self.swing_progress > 2:
+                self.is_swinging = False
+                self.swing_progress = 0
+
             sword.swing((self.center_x, self.center_y), SWING_SPEED)
             #swing_frame = int(self.swing_progress * SWING_FRAME_COUNT) % SWING_FRAME_COUNT
             #self.weapon_texture = self.swing_textures[swing_frame][self.swing_direction]
-            return self.swing_progress
+            return self.is_swinging
         """
         # Jumping animation
         if self.change_y > 0 and not self.is_on_ladder:

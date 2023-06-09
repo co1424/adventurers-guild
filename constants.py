@@ -54,8 +54,8 @@ LAYER_NAME_SWORD = "Sword"
 
 
 # Swinging constant for weapons:
-SWING_SPEED = 15
-
+SWING_SPEED = 10
 SWORD_OFFSET = 40
-=======
+
+# Speeds of enemies
 BASIC_ENEMY_SPEED = 1000

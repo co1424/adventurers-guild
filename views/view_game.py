@@ -478,7 +478,7 @@ class GameView(View):
         elif key == arcade.key.D:
             self.right_pressed = True
 
-        if arcade.key.SPACE:
+        if key == arcade.key.SPACE:
             if not self.player_sword_activated:
                 sword = Sword(
                     self.player_sprite.center_x,
@@ -579,9 +579,9 @@ class GameView(View):
                     self.physics_engine.apply_force(enemy, force)
                     arcade.play_sound(self.hit_sound)
             
-            progress = self.player_sprite.update_animation(sword)
+            unfinished = self.player_sprite.update_animation(sword)
 
-            if progress > 1:
+            if not unfinished:
                 self.scene.remove_sprite_list_by_name(LAYER_NAME_SWORD)
                 self.player_sword_activated = False
                 
