@@ -410,6 +410,55 @@ class GameView(View):
 
         self.physics_engine.add_collision_handler("player", "enemy", post_handler=enemy_player_handler)
 
+        def bullet_handler(player, bullet, arbiter, space, data):
+            
+            self.bullet_list.remove(bullet)
+            self.player_sprite.change_health(-1)
+            self.physics_engine.remove_sprite(bullet)
+            if self.player_sprite.health <= 0:
+                arcade.play_sound(self.game_over)
+                self.window.show_view(self.window.views["game_over"])
+
+
+
+        def bullet_wall_handler(wall, bullet, arbiter, space, data):
+            
+            self.bullet_list.remove(bullet)
+            self.physics_engine.remove_sprite(bullet)
+
+        def bullet_enemy_handler(enemy, bullet, arbiter, space, data):
+            
+            if isinstance(enemy, Basic_Enemy):
+                self.bullet_list.remove(bullet)
+                self.physics_engine.remove_sprite(bullet)
+
+            
+            """
+            # Check if the bullet has gone off-screen. If so, delete the bullet
+                #if sprite_off_screen(existing_bullet):
+                    #existing_bullet.remove_from_sprite_lists()
+                    #continue
+
+                # Check if the bullet has hit the player
+                self.physics_engine.apply_opposite_running_force(bullet)
+                if not self.player_sprite.is_Invulnerable():
+                    self.player_sprite.change_health(-1)
+                if self.player_sprite.health <= 0:
+                    arcade.play_sound(self.game_over)
+                    self.window.show_view(self.window.views["game_over"])
+                
+                if arcade.check_for_collision_with_list(existing_bullet, self.scene.get_sprite_list(LAYER_NAME_WALLS)):
+                    # when bullet hits wall, remove the bullet
+                    existing_bullet.remove_from_sprite_lists()
+            """
+
+        self.physics_engine.add_collision_handler("player", "bullet", post_handler=bullet_handler)
+        self.physics_engine.add_collision_handler("wall", "bullet", post_handler=bullet_wall_handler)
+        self.physics_engine.add_collision_handler("enemy", "bullet", post_handler=bullet_enemy_handler)
+
+
+
+
 
 
 
@@ -439,6 +488,8 @@ class GameView(View):
                 collision_type="enemy",
                 #max_velocity=200
         )
+            
+
         
 
 
@@ -624,61 +675,49 @@ class GameView(View):
             angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
             enemy.angle = math.degrees(angle)  # Convert the angle to degrees
 
+            
+            # Increase the enemy's timer
+            self.enemy_timer += delta_time
 
-        # Increase the enemy's timer
-        self.enemy_timer += delta_time
-
-        # Position the camera
-        # self.center_camera_to_player()
+            # Position the camera
+            # self.center_camera_to_player()
                 # Call updates on bullet sprites
-        self.bullet_list.on_update(delta_time)
 
-        # Check if the enemy can attack. If so, shoot a bullet from the
-        # enemy towards the player
-        if self.enemy_timer >= ENEMY_ATTACK_COOLDOWN:
-            self.enemy_timer = 0
+            # Check if the enemy can attack. If so, shoot a bullet from the
+            # enemy towards the player
+            if self.enemy_timer >= ENEMY_ATTACK_COOLDOWN:
+                self.enemy_timer = 0
 
-            # Create the bullet
-            bullet = Bullet()
+                # Create the bullet
+                bullet = Bullet()
 
-            # Set the bullet's position
-            bullet.position = enemy.position
+                # Set the bullet's position
+                bullet.position = enemy.position
 
-            # Set the bullet's angle to face the player
-            diff_x = self.player_sprite.center_x - enemy.center_x
-            diff_y = self.player_sprite.center_y - enemy.center_y
-            angle = math.atan2(diff_y, diff_x)
-            angle_deg = math.degrees(angle)
-            if angle_deg < 0:
-                angle_deg += 360
-            bullet.angle = angle_deg
+                # Set the bullet's angle to face the player
+                diff_x = self.player_sprite.center_x - enemy.center_x
+                diff_y = self.player_sprite.center_y - enemy.center_y
+                angle = math.atan2(diff_y, diff_x)
+                angle_deg = math.degrees(angle)
+                if angle_deg < 0:
+                    angle_deg += 360
+                bullet.angle = angle_deg
 
-            # Give the bullet a velocity towards the player
-            bullet.change_x = math.cos(angle) * BULLET_SPEED
-            bullet.change_y = math.sin(angle) * BULLET_SPEED
+                # Give the bullet a velocity towards the player
+                x = math.cos(angle) * BULLET_SPEED
+                y = math.sin(angle) * BULLET_SPEED
 
-            # Add the bullet to the bullet list
-            self.bullet_list.append(bullet)
+                # Add the bullet to the bullet list
+                self.bullet_list.append(bullet)
+                self.physics_engine.add_sprite(
+                    bullet,
+                    friction=0.6,
+                    moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
+                    collision_type="bullet"
+                )
+                self.physics_engine.set_velocity(bullet, (x,y))
 
-        # Loop through each bullet
-        for existing_bullet in self.bullet_list:
-            # Check if the bullet has gone off-screen. If so, delete the bullet
-                #if sprite_off_screen(existing_bullet):
-                    #existing_bullet.remove_from_sprite_lists()
-                    #continue
 
-                    # Check if the bullet has hit the player
-                if arcade.check_for_collision(existing_bullet, self.player_sprite):
-                    # Damage the player and remove the bullet
-                    self.player_sprite.health -= BULLET_DAMAGE
-                    existing_bullet.remove_from_sprite_lists()
-                    if self.player_sprite.health <= 0:
-                        arcade.play_sound(self.game_over)
-                        self.window.show_view(self.window.views["game_over"])
-                
-                if arcade.check_for_collision_with_list(existing_bullet, self.scene.get_sprite_list(LAYER_NAME_WALLS)):
-                    # when bullet hits wall, remove the bullet
-                    existing_bullet.remove_from_sprite_lists()
 
         """
         # See if the moving wall hit a boundary and needs to reverse direction.
