@@ -302,6 +302,8 @@ class GameView(View):
         PARAMETERS
         map_name (string): Fills in the file path as such: rf"views/maps-data/{map_name}"
         """       
+        self.player_sword_activated = False
+        self.enemy_list = []
 
         self.map_name = map_name
 
@@ -363,6 +365,7 @@ class GameView(View):
             if "change_x" in my_object.properties:
                 enemy.change_x = my_object.properties["change_x"]
             self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
+            
         """
         # Add bullet spritelist to Scene
         self.scene.add_sprite_list(LAYER_NAME_BULLETS)
@@ -390,7 +393,6 @@ class GameView(View):
             force = (-velocity_x, -velocity_y)
             self.physics_engine.apply_force(enemy, force)
 
-            self.physics_engine.apply_opposite_running_force(enemy)
             if not self.player_sprite.is_Invulnerable():
                 self.player_sprite.change_health(-1)
 
@@ -560,24 +562,32 @@ class GameView(View):
         self.player_sprite.angle = math.degrees(angle)  # Convert the angle to degrees
         
 
+        enemy_list = self.scene.get_sprite_list(LAYER_NAME_ENEMIES)
 
         if self.player_sword_activated:
             swords = self.scene.get_sprite_list(LAYER_NAME_SWORD)
-            enemies = self.scene.get_sprite_list(LAYER_NAME_ENEMIES)
             for sword in swords:
-                for enemy in arcade.check_for_collision_with_list(sword, enemies):
-                    dx = self.player_sprite.center_x - enemy.center_x
-                    dy = self.player_sprite.center_y - enemy.center_y
-                    angle = math.atan2(dy, dx)
-                    enemy.angle = math.degrees(angle)
-                    # Calculate the velocity components based on the angle
+                for enemy in arcade.check_for_collision_with_list(sword, enemy_list):
+                    if enemy.is_hit():
+                        
+                        dx = self.player_sprite.center_x - enemy.center_x
+                        dy = self.player_sprite.center_y - enemy.center_y
+                        angle = math.atan2(dy, dx)
+                        enemy.angle = math.degrees(angle)
+                        # Calculate the velocity components based on the angle
 
-                    velocity_x = BASIC_ENEMY_SPEED * math.cos(angle) * 20
-                    velocity_y = BASIC_ENEMY_SPEED * math.sin(angle) * 20
+                        velocity_x = BASIC_ENEMY_SPEED * math.cos(angle) * 20
+                        velocity_y = BASIC_ENEMY_SPEED * math.sin(angle) * 20
 
-                    force = (-velocity_x, -velocity_y)
-                    self.physics_engine.apply_force(enemy, force)
-                    arcade.play_sound(self.hit_sound)
+                        force = (-velocity_x, -velocity_y)
+                        self.physics_engine.apply_force(enemy, force)
+                        enemy.change_health(-1)
+                        enemy.start_hit_timer()
+
+                        arcade.play_sound(self.hit_sound)
+                        self.score += 10
+
+
             
             unfinished = self.player_sprite.update_animation(sword)
 
@@ -629,8 +639,7 @@ class GameView(View):
             ],
         )
         """
-
-        for enemy in self.scene.get_sprite_list(LAYER_NAME_ENEMIES):
+        for enemy in enemy_list:
             # Update the enemy's position to follow the player
             dx = self.player_sprite.center_x - enemy.center_x
             dy = self.player_sprite.center_y - enemy.center_y
@@ -647,6 +656,13 @@ class GameView(View):
             # Update the rotation of the enemy sprite to face the player sprite
             angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
             enemy.angle = math.degrees(angle)  # Convert the angle to degrees
+
+            # returns true or false, but meant to decrease invincibility counter.
+            enemy.is_hit()
+            if enemy.health <= 0:
+                self.score += 50
+                enemy_list.remove(enemy)
+                self.physics_engine.remove_sprite(enemy)
 
 
         """
@@ -674,15 +690,6 @@ class GameView(View):
             ):
                 wall.change_y *= -1
 
-        """
-        player_collision_list = arcade.check_for_collision_with_lists(
-            self.player_sprite,
-            [
-                #self.scene.get_sprite_list(LAYER_NAME_COINS),
-                self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
-            ],
-        )
-        """
         for bullet in self.scene.get_sprite_list(LAYER_NAME_BULLETS):
             hit_list = arcade.check_for_collision_with_lists(
                 bullet,
