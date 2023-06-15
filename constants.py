@@ -51,6 +51,12 @@ LAYER_NAME_BULLETS = "Bullets"
 LAYER_NAME_SWORD = "Sword"
 
 
+ENEMY_ATTACK_COOLDOWN = 1
+SPRITE_SCALING_BULLET = 1
+BULLET_SPEED = 1000
+BULLET_DAMAGE = 1
+
+
 
 
 # Swinging constant for weapons:
@@ -59,3 +65,4 @@ SWORD_OFFSET = 40
 
 # Speeds of enemies
 BASIC_ENEMY_SPEED = 1000
+
