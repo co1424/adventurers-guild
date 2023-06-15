@@ -7,4 +7,4 @@ class Basic_Enemy(Enemy):
         # Set up parent class
         super().__init__("assets/Sprite/Enemy/Basic", "enemy_basic", scale)
 
-        self.health = 50
+        self.health = 3

@@ -7,7 +7,8 @@ class Enemy(Entity):
         super().__init__(folder, file_prefix, scale)
 
         self.should_update_walk = 0
-        self.health = 0
+        self.health = 1
+        self.hit_timer = 0
     """
     def update_animation(self, delta_time: float = 1 / 60):
 
@@ -33,3 +34,18 @@ class Enemy(Entity):
 
         self.should_update_walk += 1
     """
+    def start_hit_timer(self):
+        self.hit_timer = 1
+
+    def is_hit(self, delta_time: float = 1 / 60):
+        if self.hit_timer <= 0:
+            return True
+        
+        if not self.hit_timer <= 0:
+            self.hit_timer -= delta_time
+
+        return False
+
+    def change_health(self, value: int):
+        self.health += value
+        
