@@ -14,6 +14,7 @@ class Player(Entity):
         # Set up parent class
 
         self.health = 10
+        self.has_key = False
         scale = 1
 
         super().__init__(folder, file_prefix, scale)
@@ -24,6 +25,20 @@ class Player(Entity):
         self.is_on_ladder = False
         self.invulnerable = False
     
+    
+    def collect_key(self):
+        '''Gives the player a key by setting has_key to True'''
+        self.has_key = True
+
+    def use_key(self):
+        '''Removes key from the player by setting has_key to False'''
+        self.has_key = False
+
+    def check_key(self):
+        '''Check if the player has the key by returning has_key'''
+        return self.has_key
+
+
     def change_health(self, value):
         '''
         Used to modify the player's health by the given value.
