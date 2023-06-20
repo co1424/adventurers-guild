@@ -12,6 +12,8 @@ from entities.enemy import Enemy
 from entities.bullet import Bullet
 from entities.ranged_enemy import Ranged_Enemy
 from entities.basic_enemy import Basic_Enemy
+from entities.key import Key
+from entities.door import Door
 from views.view import View
 from entities.sword import Sword
 
@@ -166,29 +168,74 @@ class GameView(View):
         self.end_of_map = self.tile_map.tiled_map.map_size.width * GRID_PIXEL_SIZE
         
         # -- Enemies
-        enemies_layer = self.tile_map.object_lists[LAYER_NAME_ENEMIES]
+        if LAYER_NAME_ENEMIES in self.tile_map.object_lists:
+            enemies_layer = self.tile_map.object_lists[LAYER_NAME_ENEMIES]
 
-        for my_object in enemies_layer:
-            cartesian = self.tile_map.get_cartesian(
-                my_object.shape[0], my_object.shape[1]
-            )
-            enemy_type = my_object.properties["type"]
+            for my_object in enemies_layer:
+                cartesian = self.tile_map.get_cartesian(
+                    my_object.shape[0], my_object.shape[1]
+                )
+                enemy_type = my_object.properties["type"]
 
-            if enemy_type == "basic":
-                enemy = Basic_Enemy()
-            enemy.center_x = math.floor(
-                cartesian[0] * TILE_SCALING * self.tile_map.tile_width
-            )
-            enemy.center_y = math.floor(
-                (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
-            )
-            """if "boundary_left" in my_object.properties:
-                enemy.boundary_left = my_object.properties["boundary_left"]
-            if "boundary_right" in my_object.properties:
-                enemy.boundary_right = my_object.properties["boundary_right"]"""
-            if "change_x" in my_object.properties:
-                enemy.change_x = my_object.properties["change_x"]
-            self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
+                if enemy_type == "basic":
+                    enemy = Basic_Enemy()
+                enemy.center_x = math.floor(
+                    cartesian[0] * TILE_SCALING * self.tile_map.tile_width
+                )
+                enemy.center_y = math.floor(
+                    (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
+                )
+                """if "boundary_left" in my_object.properties:
+                    enemy.boundary_left = my_object.properties["boundary_left"]
+                if "boundary_right" in my_object.properties:
+                    enemy.boundary_right = my_object.properties["boundary_right"]"""
+                if "change_x" in my_object.properties:
+                    enemy.change_x = my_object.properties["change_x"]
+                self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
+
+
+        # -- Keys
+        if LAYER_NAME_KEYS in self.tile_map.object_lists:
+            keys_layer = self.tile_map.object_lists[LAYER_NAME_KEYS]
+
+            for my_object in keys_layer:
+                cartesian = self.tile_map.get_cartesian(
+                    my_object.shape[0], my_object.shape[1]
+                )
+
+                key = Key()
+                key.center_x = math.floor(
+                    cartesian[0] * TILE_SCALING * self.tile_map.tile_width
+                )
+                key.center_y = math.floor(
+                    (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
+                )
+                if "change_x" in my_object.properties:
+                    key.change_x = my_object.properties["change_x"]
+
+                self.scene.add_sprite(LAYER_NAME_KEYS, key)
+
+        # -- Doors
+        if LAYER_NAME_DOORS in self.tile_map.object_lists:
+            doors_layer = self.tile_map.object_lists[LAYER_NAME_DOORS]
+
+            for my_object in doors_layer:
+                cartesian = self.tile_map.get_cartesian(
+                    my_object.shape[0], my_object.shape[1]
+                )
+
+                door = Door()
+                door.center_x = math.floor(
+                    cartesian[0] * TILE_SCALING * self.tile_map.tile_width
+                )
+                door.center_y = math.floor(
+                    (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
+                )
+                #if "change_x" in my_object.properties:
+                #    door.change_x = my_object.properties["change_x"]
+
+                self.scene.add_sprite(LAYER_NAME_DOORS, door)
+        
         """
         # Add bullet spritelist to Scene
         self.scene.add_sprite_list(LAYER_NAME_BULLETS)
@@ -208,6 +255,9 @@ class GameView(View):
             walls=self.scene.get_sprite_list(LAYER_NAME_WALLS)
         )"""
         
+        self.door_open = False
+        self.key_collected = False
+        self.found_locked_door = False
 
         self.setup_physics_engine()
 
@@ -254,7 +304,31 @@ class GameView(View):
             18,
         )
 
+
+        if (self.found_locked_door == True and self.player_sprite.check_key() == False and self.door_open == False):
+            locked_text = "The door is locked."
+            arcade.draw_text(
+                locked_text,
+                900,
+                8,
+                arcade.csscolor.MEDIUM_PURPLE,
+                18,
+            )
+
+        # Notify the player when they have the key
+        key_text = "You found a key!"
+        if (self.player_sprite.check_key() == True):
+            arcade.draw_text(
+                key_text,
+                900,
+                8,
+                arcade.csscolor.MEDIUM_PURPLE,
+                18,
+            )
+
+
         self.bullet_list.draw()
+
         # Draw hit boxes.
         # for wall in self.wall_list:
         #     wall.draw_hit_box(arcade.color.BLACK, 3)
@@ -348,14 +422,15 @@ class GameView(View):
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
 
         # -- Enemies
-        enemies_layer = self.tile_map.object_lists[LAYER_NAME_ENEMIES]
-
-        for my_object in enemies_layer:
-            cartesian = self.tile_map.get_cartesian(
-                my_object.shape[0], my_object.shape[1]
-            )
-            enemy_type = my_object.properties["type"]
-
+        if LAYER_NAME_ENEMIES in self.tile_map.object_lists:
+            enemies_layer = self.tile_map.object_lists[LAYER_NAME_ENEMIES]
+    
+            for my_object in enemies_layer:
+                cartesian = self.tile_map.get_cartesian(
+                    my_object.shape[0], my_object.shape[1]
+                )
+                enemy_type = my_object.properties["type"]
+    
             if enemy_type == "basic":
                 enemy = Basic_Enemy()
             elif enemy_type == 'ranged':
@@ -373,7 +448,55 @@ class GameView(View):
             if "change_x" in my_object.properties:
                 enemy.change_x = my_object.properties["change_x"]
             self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
-            
+
+        
+        # -- Keys
+        if LAYER_NAME_KEYS in self.tile_map.object_lists and self.key_collected == False:
+            keys_layer = self.tile_map.object_lists[LAYER_NAME_KEYS]
+            for my_object in keys_layer:
+                cartesian = self.tile_map.get_cartesian(
+                    my_object.shape[0], my_object.shape[1]
+                )
+
+                key = Key()
+                key.center_x = math.floor(
+                    cartesian[0] * TILE_SCALING * self.tile_map.tile_width
+                )
+                key.center_y = math.floor(
+                    (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
+                )
+                """if "boundary_left" in my_object.properties:
+                    enemy.boundary_left = my_object.properties["boundary_left"]
+                if "boundary_right" in my_object.properties:
+                    enemy.boundary_right = my_object.properties["boundary_right"]"""
+                if "change_x" in my_object.properties:
+                    key.change_x = my_object.properties["change_x"]
+                self.scene.add_sprite(LAYER_NAME_KEYS, key)
+
+
+        # -- Doors
+        if LAYER_NAME_DOORS in self.tile_map.object_lists and self.door_open == False:
+            doors_layer = self.tile_map.object_lists[LAYER_NAME_DOORS]
+            for my_object in doors_layer:
+                cartesian = self.tile_map.get_cartesian(
+                    my_object.shape[0], my_object.shape[1]
+                )
+
+                door = Door()
+                door.center_x = math.floor(
+                    cartesian[0] * TILE_SCALING * self.tile_map.tile_width
+                )
+                door.center_y = math.floor(
+                    (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
+                )
+                """if "boundary_left" in my_object.properties:
+                    enemy.boundary_left = my_object.properties["boundary_left"]
+                if "boundary_right" in my_object.properties:
+                    enemy.boundary_right = my_object.properties["boundary_right"]"""
+                #if "change_x" in my_object.properties:
+                #    key.change_x = my_object.properties["change_x"]
+                self.scene.add_sprite(LAYER_NAME_DOORS, door)
+
         """
         # Add bullet spritelist to Scene
         self.scene.add_sprite_list(LAYER_NAME_BULLETS)
@@ -417,6 +540,28 @@ class GameView(View):
 
         self.physics_engine.add_collision_handler("player", "enemy", post_handler=enemy_player_handler)
 
+
+        def key_player_handler(player, key, arbiter, space, data):
+            self.key_collected = True
+            self.physics_engine.remove_sprite(key)
+            self.scene.get_sprite_list(LAYER_NAME_KEYS).remove(key)
+            self.player_sprite.collect_key()
+
+        self.physics_engine.add_collision_handler("player", "key", post_handler=key_player_handler)
+
+        
+        def door_player_handler(player, door, arbiter, space, data):
+            if (self.player_sprite.check_key() == True):
+                self.door_open = True
+                self.physics_engine.remove_sprite(door)
+                self.scene.get_sprite_list(LAYER_NAME_DOORS).remove(door)
+                self.player_sprite.use_key()
+            else:
+                self.found_locked_door = True      
+
+        self.physics_engine.add_collision_handler("player", "door", post_handler=door_player_handler)
+
+        
         def bullet_handler(player, bullet, arbiter, space, data):
             
             self.bullet_list.remove(bullet)
@@ -464,11 +609,6 @@ class GameView(View):
         self.physics_engine.add_collision_handler("enemy", "bullet", post_handler=bullet_enemy_handler)
 
 
-
-
-
-
-
         self.physics_engine.add_sprite(
             self.player_sprite,
             friction=0.6,
@@ -486,8 +626,19 @@ class GameView(View):
             body_type=PymunkPhysicsEngine.STATIC
         )
 
-        for enemy in self.scene.get_sprite_list(LAYER_NAME_ENEMIES):
-            if isinstance(enemy, Basic_Enemy):       
+        if LAYER_NAME_DOORS in self.tile_map.object_lists and self.door_open == False:
+            self.physics_engine.add_sprite_list(
+                self.scene.get_sprite_list(LAYER_NAME_DOORS),
+                friction=0.6,
+                collision_type="door",
+                body_type=PymunkPhysicsEngine.STATIC
+            )
+
+
+        if LAYER_NAME_ENEMIES in self.tile_map.object_lists:
+            for enemy in self.scene.get_sprite_list(LAYER_NAME_ENEMIES):
+                if isinstance(enemy, Basic_Enemy):       
+
                 self.physics_engine.add_sprite(
                     enemy,
                     friction=0.6,
@@ -496,19 +647,29 @@ class GameView(View):
                     collision_type="enemy",
                     #max_velocity=200
             )
-            if isinstance(enemy, Ranged_Enemy):   
+                
+                if isinstance(enemy, Ranged_Enemy):   
+                    self.physics_engine.add_sprite(
+                        enemy,
+                        friction=0.6,
+                        body_type=PymunkPhysicsEngine.STATIC,
+                        damping=0.01,
+                        collision_type="enemy",
+                        #max_velocity=200
+                )    
+
+                
+        if LAYER_NAME_KEYS in self.tile_map.object_lists and self.key_collected == False:       
+            for key in self.scene.get_sprite_list(LAYER_NAME_KEYS):
                 self.physics_engine.add_sprite(
-                    enemy,
+                    key,
                     friction=0.6,
-                    body_type=PymunkPhysicsEngine.STATIC,
+                    moment_of_intertia=PymunkPhysicsEngine.MOMENT_INF,
                     damping=0.01,
-                    collision_type="enemy",
+                    collision_type="key",
                     #max_velocity=200
-            )    
+            )
 
-            
-
-        
 
 
     """

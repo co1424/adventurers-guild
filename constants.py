@@ -48,6 +48,10 @@ LAYER_NAME_LADDERS = "Ladders"
 LAYER_NAME_PLAYER = "Player"
 LAYER_NAME_ENEMIES = "Enemies"
 LAYER_NAME_BULLETS = "Bullets"
+
+LAYER_NAME_KEYS = "Keys"
+LAYER_NAME_DOORS = "Doors"
+
 LAYER_NAME_SWORD = "Sword"
 
 
@@ -65,4 +69,5 @@ SWORD_OFFSET = 40
 
 # Speeds of enemies
 BASIC_ENEMY_SPEED = 1000
+
 
