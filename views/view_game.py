@@ -290,7 +290,7 @@ class GameView(View):
             score_text,
             40,
             8,
-            arcade.csscolor.MEDIUM_PURPLE,
+            (134,9,195),
             18,
         )
 
@@ -300,7 +300,7 @@ class GameView(View):
             health_text,
             200,
             8,
-            arcade.csscolor.MEDIUM_PURPLE,
+            (134,9,195),
             18,
         )
 
@@ -311,7 +311,7 @@ class GameView(View):
                 locked_text,
                 900,
                 8,
-                arcade.csscolor.MEDIUM_PURPLE,
+                (134,9,195),
                 18,
             )
 
@@ -322,7 +322,7 @@ class GameView(View):
                 key_text,
                 900,
                 8,
-                arcade.csscolor.MEDIUM_PURPLE,
+                (134,9,195),
                 18,
             )
 
@@ -639,14 +639,14 @@ class GameView(View):
             for enemy in self.scene.get_sprite_list(LAYER_NAME_ENEMIES):
                 if isinstance(enemy, Basic_Enemy):       
 
-                self.physics_engine.add_sprite(
-                    enemy,
-                    friction=0.6,
-                    moment_of_intertia=PymunkPhysicsEngine.MOMENT_INF,
-                    damping=0.01,
-                    collision_type="enemy",
-                    #max_velocity=200
-            )
+                    self.physics_engine.add_sprite(
+                        enemy,
+                        friction=0.6,
+                        moment_of_intertia=PymunkPhysicsEngine.MOMENT_INF,
+                        damping=0.01,
+                        collision_type="enemy",
+                        #max_velocity=200
+                    )
                 
                 if isinstance(enemy, Ranged_Enemy):   
                     self.physics_engine.add_sprite(
@@ -885,15 +885,7 @@ class GameView(View):
 
         for enemy in self.scene.get_sprite_list(LAYER_NAME_ENEMIES):
 
-        for enemy in enemy_list:
-            # Update the enemy's position to follow the player
-            dx = self.player_sprite.center_x - enemy.center_x
-            dy = self.player_sprite.center_y - enemy.center_y
-            angle = math.atan2(dy, dx)
-            enemy.angle = math.degrees(angle)
-            # Calculate the velocity components based on the angle
-
-            if isinstance(enemy, Basic_Enemy):
+            for enemy in enemy_list:
                 # Update the enemy's position to follow the player
                 dx = self.player_sprite.center_x - enemy.center_x
                 dy = self.player_sprite.center_y - enemy.center_y
@@ -901,67 +893,75 @@ class GameView(View):
                 enemy.angle = math.degrees(angle)
                 # Calculate the velocity components based on the angle
 
-                velocity_x = BASIC_ENEMY_SPEED * math.cos(angle)
-                velocity_y = BASIC_ENEMY_SPEED * math.sin(angle)
-                # Update the enemy's position
-                force = (velocity_x, velocity_y)
-                self.physics_engine.apply_force(enemy, force)
+                if isinstance(enemy, Basic_Enemy):
+                    # Update the enemy's position to follow the player
+                    dx = self.player_sprite.center_x - enemy.center_x
+                    dy = self.player_sprite.center_y - enemy.center_y
+                    angle = math.atan2(dy, dx)
+                    enemy.angle = math.degrees(angle)
+                    # Calculate the velocity components based on the angle
 
-                # Update the rotation of the enemy sprite to face the player sprite
-                angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
-                enemy.angle = math.degrees(angle)  # Convert the angle to degrees
+                    velocity_x = BASIC_ENEMY_SPEED * math.cos(angle)
+                    velocity_y = BASIC_ENEMY_SPEED * math.sin(angle)
+                    # Update the enemy's position
+                    force = (velocity_x, velocity_y)
+                    self.physics_engine.apply_force(enemy, force)
 
-            if isinstance(enemy, Ranged_Enemy):       
-                # Update the enemy's position to follow the player
-                dx = self.player_sprite.center_x - enemy.center_x
-                dy = self.player_sprite.center_y - enemy.center_y
-                angle = math.atan2(dy, dx)
-                enemy.angle = math.degrees(angle)
-                # Update the rotation of the enemy sprite to face the player sprite
-                angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
-                enemy.angle = math.degrees(angle)  # Convert the angle to degrees
+                    # Update the rotation of the enemy sprite to face the player sprite
+                    angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
+                    enemy.angle = math.degrees(angle)  # Convert the angle to degrees
 
-                
-                # Increase the enemy's timer
-                self.enemy_timer += delta_time
+                if isinstance(enemy, Ranged_Enemy):       
+                    # Update the enemy's position to follow the player
+                    dx = self.player_sprite.center_x - enemy.center_x
+                    dy = self.player_sprite.center_y - enemy.center_y
+                    angle = math.atan2(dy, dx)
+                    enemy.angle = math.degrees(angle)
+                    # Update the rotation of the enemy sprite to face the player sprite
+                    angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
+                    enemy.angle = math.degrees(angle)  # Convert the angle to degrees
 
-                # Position the camera
-                # self.center_camera_to_player()
-                    # Call updates on bullet sprites
+                    
+                    # Increase the enemy's timer
+                    self.enemy_timer += delta_time
 
-                # Check if the enemy can attack. If so, shoot a bullet from the
-                # enemy towards the player
-                if self.enemy_timer >= ENEMY_ATTACK_COOLDOWN:
-                    self.enemy_timer = 0
+                    # Position the camera
+                    # self.center_camera_to_player()
+                        # Call updates on bullet sprites
 
-                    # Create the bullet
-                    bullet = Bullet()
+                    # Check if the enemy can attack. If so, shoot a bullet from the
+                    # enemy towards the player
+                    if self.enemy_timer >= ENEMY_ATTACK_COOLDOWN:
+                        self.enemy_timer = 0
 
-                    # Set the bullet's position
-                    bullet.position = enemy.position
+                        # Create the bullet
+                        bullet = Bullet()
 
-                    # Set the bullet's angle to face the player
-                    diff_x = self.player_sprite.center_x - enemy.center_x
-                    diff_y = self.player_sprite.center_y - enemy.center_y
-                    angle = math.atan2(diff_y, diff_x)
-                    angle_deg = math.degrees(angle)
-                    if angle_deg < 0:
-                        angle_deg += 360
-                    bullet.angle = angle_deg
+                        # Set the bullet's position
+                        bullet.position = enemy.position
 
-                    # Give the bullet a velocity towards the player
-                    x = math.cos(angle) * BULLET_SPEED
-                    y = math.sin(angle) * BULLET_SPEED
+                        # Set the bullet's angle to face the player
+                        diff_x = self.player_sprite.center_x - enemy.center_x
+                        diff_y = self.player_sprite.center_y - enemy.center_y
+                        angle = math.atan2(diff_y, diff_x)
+                        angle_deg = math.degrees(angle)
+                        if angle_deg < 0:
+                            angle_deg += 360
+                        bullet.angle = angle_deg
 
-                    # Add the bullet to the bullet list
-                    self.bullet_list.append(bullet)
-                    self.physics_engine.add_sprite(
-                        bullet,
-                        friction=0.6,
-                        moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
-                        collision_type="bullet"
-                    )
-                    self.physics_engine.set_velocity(bullet, (x,y))
+                        # Give the bullet a velocity towards the player
+                        x = math.cos(angle) * BULLET_SPEED
+                        y = math.sin(angle) * BULLET_SPEED
+
+                        # Add the bullet to the bullet list
+                        self.bullet_list.append(bullet)
+                        self.physics_engine.add_sprite(
+                            bullet,
+                            friction=0.6,
+                            moment_of_inertia=PymunkPhysicsEngine.MOMENT_INF,
+                            collision_type="bullet"
+                        )
+                        self.physics_engine.set_velocity(bullet, (x,y))
 
 
 
