@@ -30,12 +30,23 @@ class MainMenuView(View):
         )
 
     def on_show_view(self):
-        arcade.set_background_color(arcade.color.ALMOND)
+        arcade.set_background_color((38,38,38))
 
     def setup_buttons(self):
         self.v_box = arcade.gui.UIBoxLayout()
-
-        play_button = arcade.gui.UIFlatButton(text="Start Game", width=200)
+        custom_style = {
+            "font_name": ("calibri", "arial"),
+            "font_size": 15,
+            "font_color": arcade.color.WHITE,
+            "border_width": 2,
+            "border_color": (134,9,195),
+            "bg_color": arcade.color.BLACK,
+            # used if button is pressed
+            "bg_color_pressed": arcade.color.BLACK,
+            "border_color_pressed": arcade.color.WHITE,  # also used when hovered
+            "font_color_pressed": arcade.color.WHITE
+        }
+        play_button = arcade.gui.UIFlatButton(text="Step Into", width=200, style=custom_style)
 
         @play_button.event("on_click")
         def on_click_play(event):
@@ -46,7 +57,7 @@ class MainMenuView(View):
 
         self.v_box.add(play_button.with_space_around(bottom=20))
 
-        quit_button = arcade.gui.UIFlatButton(text="Quit", width=200)
+        quit_button = arcade.gui.UIFlatButton(text="Stop", width=200, style=custom_style)
 
         @quit_button.event("on_click")
         def on_click_quit(event):
@@ -58,10 +69,10 @@ class MainMenuView(View):
         arcade.start_render()
 
         arcade.draw_text(
-            "Arcade Community Platformer",
+            "// Title goes here",
             self.window.width / 2,
             self.window.height - 125,
-            arcade.color.ALLOY_ORANGE,
+            (134,9,195),
             font_size=44,
             anchor_x="center",
             anchor_y="center",
