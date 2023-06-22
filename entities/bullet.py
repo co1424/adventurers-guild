@@ -5,7 +5,7 @@ from constants import *
 class Bullet(arcade.Sprite):
     def __init__(self) -> None:
         super().__init__(
-            filename= ":resources:images/space_shooter/laserBlue01.png",
+            filename= "assets/Sprite/Enemy/Ranged/wasp_stinger.png",
             scale=SPRITE_SCALING_BULLET,
         )
 

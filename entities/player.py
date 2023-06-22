@@ -72,12 +72,14 @@ class Player(Entity):
         seconds = time to be invulnerable
         '''
         self.invulnerable = True
+        self.color = arcade.color.RED
         arcade.unschedule(self.disable_invulnerability)  # Cancel any previous invulnerability timer to make sure the timer resets
         arcade.schedule(self.disable_invulnerability, seconds)
 
     
     def disable_invulnerability(self, _):
         self.invulnerable = False
+        self.color = arcade.color.WHITE
 
 
     def is_Invulnerable(self):
