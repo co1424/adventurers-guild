@@ -431,23 +431,23 @@ class GameView(View):
                 )
                 enemy_type = my_object.properties["type"]
     
-            if enemy_type == "basic":
-                enemy = Basic_Enemy()
-            elif enemy_type == 'ranged':
-                enemy = Ranged_Enemy()
-            enemy.center_x = math.floor(
-                cartesian[0] * TILE_SCALING * self.tile_map.tile_width
-            )
-            enemy.center_y = math.floor(
-                (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
-            )
-            """if "boundary_left" in my_object.properties:
-                enemy.boundary_left = my_object.properties["boundary_left"]
-            if "boundary_right" in my_object.properties:
-                enemy.boundary_right = my_object.properties["boundary_right"]"""
-            if "change_x" in my_object.properties:
-                enemy.change_x = my_object.properties["change_x"]
-            self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
+                if enemy_type == "basic":
+                    enemy = Basic_Enemy()
+                elif enemy_type == 'ranged':
+                    enemy = Ranged_Enemy()
+                enemy.center_x = math.floor(
+                    cartesian[0] * TILE_SCALING * self.tile_map.tile_width
+                )
+                enemy.center_y = math.floor(
+                    (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
+                )
+                """if "boundary_left" in my_object.properties:
+                    enemy.boundary_left = my_object.properties["boundary_left"]
+                if "boundary_right" in my_object.properties:
+                    enemy.boundary_right = my_object.properties["boundary_right"]"""
+                if "change_x" in my_object.properties:
+                    enemy.change_x = my_object.properties["change_x"]
+                self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
 
         
         # -- Keys
@@ -834,9 +834,7 @@ class GameView(View):
             if not unfinished:
                 self.scene.remove_sprite_list_by_name(LAYER_NAME_SWORD)
                 self.player_sword_activated = False
-                
-                
-        self.detect_map_change()         
+                        
 
         #Movement and game logic
         # Move the player with the physics engine
@@ -1064,3 +1062,5 @@ class GameView(View):
                 collision.remove_from_sprite_lists()
                 arcade.play_sound(self.collect_coin_sound)
         """
+
+        self.detect_map_change() 
