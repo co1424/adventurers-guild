@@ -16,6 +16,7 @@ from entities.key import Key
 from entities.door import Door
 from views.view import View
 from entities.sword import Sword
+from entities.health_boost import Health_Boost
 
 from views.view_game_over import GameOverView
 
@@ -258,6 +259,7 @@ class GameView(View):
         self.door_open = False
         self.key_collected = False
         self.found_locked_door = False
+        self.health_boost_collected = False
 
         self.setup_physics_engine()
 
@@ -497,6 +499,29 @@ class GameView(View):
                 #    key.change_x = my_object.properties["change_x"]
                 self.scene.add_sprite(LAYER_NAME_DOORS, door)
 
+        # -- Health Boost
+        if LAYER_NAME_HEALTH_BOOST in self.tile_map.object_lists and self.health_boost_collected == False:
+            health_boost_layer = self.tile_map.object_lists[LAYER_NAME_HEALTH_BOOST]
+            for my_object in health_boost_layer:
+                cartesian = self.tile_map.get_cartesian(
+                    my_object.shape[0], my_object.shape[1]
+                )
+
+                health_boost = Health_Boost()
+                health_boost.center_x = math.floor(
+                    cartesian[0] * TILE_SCALING * self.tile_map.tile_width
+                )
+                health_boost.center_y = math.floor(
+                    (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
+                )
+                """if "boundary_left" in my_object.properties:
+                    enemy.boundary_left = my_object.properties["boundary_left"]
+                if "boundary_right" in my_object.properties:
+                    enemy.boundary_right = my_object.properties["boundary_right"]"""
+                if "change_x" in my_object.properties:
+                    health_boost.change_x = my_object.properties["change_x"]
+                self.scene.add_sprite(LAYER_NAME_HEALTH_BOOST, health_boost)
+
         """
         # Add bullet spritelist to Scene
         self.scene.add_sprite_list(LAYER_NAME_BULLETS)
@@ -549,6 +574,13 @@ class GameView(View):
 
         self.physics_engine.add_collision_handler("player", "key", post_handler=key_player_handler)
 
+        def health_boost_player_handler(player, health_boost, arbiter, space, data):
+            self.health_boost_collected = True
+            self.physics_engine.remove_sprite(health_boost)
+            self.scene.get_sprite_list(LAYER_NAME_HEALTH_BOOST).remove(health_boost)
+            self.player_sprite.collect_health_boost()
+
+        self.physics_engine.add_collision_handler("player", "health_boost", post_handler=health_boost_player_handler)
         
         def door_player_handler(player, door, arbiter, space, data):
             if (self.player_sprite.check_key() == True):
@@ -667,6 +699,17 @@ class GameView(View):
                     moment_of_intertia=PymunkPhysicsEngine.MOMENT_INF,
                     damping=0.01,
                     collision_type="key",
+                    #max_velocity=200
+            )
+                
+        if LAYER_NAME_HEALTH_BOOST in self.tile_map.object_lists and self.health_boost_collected == False:       
+            for health_boost in self.scene.get_sprite_list(LAYER_NAME_HEALTH_BOOST):
+                self.physics_engine.add_sprite(
+                    health_boost,
+                    friction=0.6,
+                    moment_of_intertia=PymunkPhysicsEngine.MOMENT_INF,
+                    damping=0.01,
+                    collision_type="health_boost",
                     #max_velocity=200
             )
 
