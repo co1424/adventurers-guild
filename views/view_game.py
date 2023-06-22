@@ -393,6 +393,7 @@ class GameView(View):
 
         def enemy_player_handler(sprite_a, sprite_b, arbiter, space, data):
             self.player_sprite.health -= BULLET_DAMAGE
+
         def enemy_player_handler(player, enemy, arbiter, space, data):
 
             dx = self.player_sprite.center_x - enemy.center_x
@@ -409,8 +410,8 @@ class GameView(View):
             if not self.player_sprite.is_Invulnerable():
                 self.player_sprite.change_health(-1)
 
-            self.player_sprite.set_invulnerable_seconds(.1)
-            self.player_sprite.color = arcade.color.RED
+            self.player_sprite.set_invulnerable_seconds(.2)
+
             if self.player_sprite.health <= 0:
                 arcade.play_sound(self.game_over)
                 self.window.show_view(self.window.views["game_over"])
@@ -722,8 +723,6 @@ class GameView(View):
         """
 
 
-        for enemy in self.scene.get_sprite_list(LAYER_NAME_ENEMIES):
-
         for enemy in enemy_list:
             # Update the enemy's position to follow the player
             dx = self.player_sprite.center_x - enemy.center_x
@@ -783,7 +782,7 @@ class GameView(View):
                     diff_x = self.player_sprite.center_x - enemy.center_x
                     diff_y = self.player_sprite.center_y - enemy.center_y
                     angle = math.atan2(diff_y, diff_x)
-                    angle_deg = math.degrees(angle)
+                    angle_deg = math.degrees(angle) - 90
                     if angle_deg < 0:
                         angle_deg += 360
                     bullet.angle = angle_deg
