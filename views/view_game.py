@@ -290,8 +290,9 @@ class GameView(View):
             score_text,
             40,
             8,
-            (134,9,195),
+            (255,255,255),
             18,
+            font_name="consolas"
         )
 
         # Draw our health on the screen, scrolling it with the viewport
@@ -300,8 +301,9 @@ class GameView(View):
             health_text,
             200,
             8,
-            (134,9,195),
+            (255,255,255),
             18,
+            font_name="consolas"
         )
 
 
@@ -311,8 +313,9 @@ class GameView(View):
                 locked_text,
                 900,
                 8,
-                (134,9,195),
+                (255,255,255),
                 18,
+                font_name="consolas"
             )
 
         # Notify the player when they have the key
@@ -322,8 +325,9 @@ class GameView(View):
                 key_text,
                 900,
                 8,
-                (134,9,195),
+                (255,255,255),
                 18,
+                font_name="consolas"
             )
 
 
