@@ -50,7 +50,9 @@ class MainMenuView(View):
             # used if button is pressed
             "bg_color_pressed": arcade.color.BLACK,
             "border_color_pressed": arcade.color.WHITE,  # also used when hovered
-            "font_color_pressed": arcade.color.WHITE
+            "font_color_pressed": arcade.color.WHITE,
+            "font_name": "Consolas"
+            
         }
         play_button = arcade.gui.UIFlatButton(text="Step Into", width=200, style=custom_style)
 
@@ -75,13 +77,50 @@ class MainMenuView(View):
         arcade.start_render()
 
         arcade.draw_text(
-            "// Title goes here",
+            "Code Catacombs",
             self.window.width / 2,
             self.window.height - 125,
-            (134,9,195),
-            font_size=44,
+            (255,255,255),
+            font_size=72,
             anchor_x="center",
             anchor_y="center",
+            font_name="Consolas"
+
+        )
+
+        arcade.draw_text(
+            "Code Catacombs",
+            (self.window.width / 2) + 1,
+            self.window.height - 127,
+            (134,9,195),
+            font_size=72,
+            anchor_x="center",
+            anchor_y="center",
+            font_name="Consolas"
+        )
+
+        arcade.draw_text(
+            "The Debugging Dungeon",
+            self.window.width / 2,
+            self.window.height - 220,
+            (255,255,255),
+            font_size=30,
+            anchor_x="center",
+            anchor_y="center",
+            font_name="Courier New"
+
+        )
+
+
+        arcade.draw_text(
+            "A game by The Adventurer's Guild",
+            self.window.width / 2,
+            self.window.height / 2 - 320,
+            (255,255,255),
+            font_size=14,
+            anchor_x="center",
+            anchor_y="center",
+            font_name="Consolas"
         )
 
         self.ui_manager.draw()

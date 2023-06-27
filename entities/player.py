@@ -46,7 +46,7 @@ class Player(Entity):
     def check_key(self):
         '''Check if the player has the key by returning has_key'''
         return self.has_key
-
+    
 
     def change_health(self, value):
         '''
