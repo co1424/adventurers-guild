@@ -3,6 +3,7 @@ Main Menu
 """
 import arcade
 import arcade.gui
+import random
 
 #from views import PauseView
 from views.view_game import GameView
@@ -19,6 +20,24 @@ class MainMenuView(View):
 
         # A Vertical BoxGroup to align Buttons
         self.v_box = None
+        self.time_elapsed = 0.0
+
+        self.subheader_color = (255,255,255)
+        self.light_on = True
+
+        self.slide_from_distance1 = 300
+        self.slide_from_distance2 = 400
+        self.slide_from_distance3 = 950
+
+        self.text_wobble = 0
+        self.wobble_forward = True
+
+        self.text_grow = 0
+        self.grow_forward = True
+
+        self.text_glitch_grow = 0
+        self.glitch_grow_forward = True
+
 
     def setup(self):
         super().setup()
@@ -73,13 +92,81 @@ class MainMenuView(View):
 
         self.v_box.add(quit_button)
 
+    def animate_text_wobble(self):
+        if (self.wobble_forward == True):
+            self.text_wobble += 0.1
+            if (self.text_wobble >= 8):
+                self.wobble_forward = False
+        else:
+            self.text_wobble -= 0.1
+            if (self.text_wobble <= -4):
+                self.wobble_forward = True
+                
+
+    def animate_text_grow(self):
+        if (self.grow_forward == True):
+            self.text_grow += 0.5
+            if (self.text_grow >= 4):
+                self.grow_forward = False
+        else:
+            self.text_grow -= 0.25
+            if (self.text_grow <= -4):
+                self.grow_forward = True
+
+    def animate_text_glitch_visible(self):
+        flicker_chance_on = 0.99  # Adjust this value to control the chance of the light staying on
+        flicker_chance_off = 0.9  # Adjust this value to control the chance of the light staying off
+        
+        if self.light_on:
+            self.subheader_color = (255, 255, 255)  # Light is on (white color)
+            if random.random() > flicker_chance_on:
+                self.light_on = False
+        else:
+            self.subheader_color = (38, 38, 38)  # Light is off (black color)
+            if random.random() > flicker_chance_off:
+                self.light_on = True
+
+    def animate_text_glitch_size(self):
+        if (self.glitch_grow_forward == True):
+            self.text_glitch_grow += 0.1
+            if (self.text_glitch_grow >= 1):
+                self.glitch_grow_forward = False
+        else:
+            self.text_glitch_grow -= 0.1
+            if (self.text_glitch_grow <= -1):
+                self.glitch_grow_forward = True
+                        
+    
+    def animate_slide_in(self):
+        if (self.slide_from_distance1 >= 0):
+            self.slide_from_distance1 -= 10
+
+        if (self.slide_from_distance2 >= 0):
+            self.slide_from_distance2 -= 10
+        
+        if (self.slide_from_distance3 >= 0):
+            self.slide_from_distance3 -= 14
+        
+        
+
+
+    def on_update(self, delta_time):
+        self.animate_text_wobble()
+        self.animate_text_grow()
+        self.animate_slide_in()
+        self.animate_text_glitch_visible()
+        self.animate_text_glitch_size()        
+        
+        self.time_elapsed += delta_time
+
+
     def on_draw(self):
         arcade.start_render()
 
         arcade.draw_text(
             "Code Catacombs",
             self.window.width / 2,
-            self.window.height - 125,
+            self.window.height - 125 + self.slide_from_distance1,
             (255,255,255),
             font_size=72,
             anchor_x="center",
@@ -91,7 +178,7 @@ class MainMenuView(View):
         arcade.draw_text(
             "Code Catacombs",
             (self.window.width / 2) + 1,
-            self.window.height - 127,
+            self.window.height - 127 + self.slide_from_distance1,
             (134,9,195),
             font_size=72,
             anchor_x="center",
@@ -102,22 +189,21 @@ class MainMenuView(View):
         arcade.draw_text(
             "The Debugging Dungeon",
             self.window.width / 2,
-            self.window.height - 220,
-            (255,255,255),
-            font_size=30,
+            self.window.height - 220 + self.text_glitch_grow + self.slide_from_distance1,
+            self.subheader_color,
+            font_size=30 + self.text_glitch_grow,
             anchor_x="center",
             anchor_y="center",
             font_name="Courier New"
-
         )
 
 
         arcade.draw_text(
             "A game by The Adventurer's Guild",
             self.window.width / 2,
-            self.window.height / 2 - 320,
+            self.window.height / 2 - 320 - self.slide_from_distance2,
             (255,255,255),
-            font_size=14,
+            font_size=15,
             anchor_x="center",
             anchor_y="center",
             font_name="Consolas"
@@ -127,44 +213,46 @@ class MainMenuView(View):
 
         arcade.draw_text(
             "Total bugs debugged:",
-            self.window.width / 5,
+            self.window.width / 5 - self.slide_from_distance3,
             self.window.height - 400,
             (255,255,255),
             font_size=18,
             anchor_x="center",
             anchor_y="center",
-            font_name="Consolas"
+            font_name="Consolas",
+            rotation=self.text_wobble
         )
 
         arcade.draw_text(
             "Total bugs debugged:",
-            (self.window.width / 5) + 1,
+            (self.window.width / 5) + 1 - self.slide_from_distance3,
             self.window.height - 400,
             (134,9,195),
             font_size= 18,
             anchor_x="center",
             anchor_y="center",
-            font_name="Consolas"
+            font_name="Consolas",
+            rotation=self.text_wobble
         )
         
         arcade.draw_text(
-            self.save,
-            self.window.width / 5,
-            self.window.height - 450,
+            self.save, # Number from storage
+            self.window.width / 5 - self.slide_from_distance3,
+            self.window.height - 450 + self.text_grow,
             (255,255,255),
-            font_size=36,
+            font_size=36 + self.text_grow,
             anchor_x="center",
             anchor_y="center",
             font_name="Consolas"
         )
 
-        arcade.draw_text(
-            self.save,
-            (self.window.width / 5) + 1,
-            self.window.height - 450,
-            (255,0,0),
-            font_size=36,
-            anchor_x="center",
-            anchor_y="center",
-            font_name="Consolas"
-        )
+        #arcade.draw_text(
+        #    self.save,
+        #    (self.window.width / 5) + 1,
+        #    self.window.height - 450,
+        #    (255,0,0),
+        #    font_size=36 + self.text_grow,
+        #    anchor_x="center",
+        #    anchor_y="center",
+        #    font_name="Consolas"
+        #)
