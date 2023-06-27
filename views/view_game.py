@@ -17,6 +17,7 @@ from entities.door import Door
 from views.view import View
 from entities.sword import Sword
 from entities.health_boost import Health_Boost
+from views.file import file
 
 from views.view_game_over import GameOverView
 
@@ -97,6 +98,8 @@ class GameView(View):
 
         super().setup()
 
+        self.save = file.read_from_file("save.json")
+
         # Track the current state of what key is pressed
        #self.left_pressed = False
         #self.right_pressed = False
@@ -127,6 +130,7 @@ class GameView(View):
         #    },
             
         if "game_over" not in self.window.views:
+            file.save_to_file(self.save)
             self.window.views["game_over"] = GameOverView()
 
         # Load in TileMap
@@ -565,6 +569,7 @@ class GameView(View):
             self.player_sprite.set_invulnerable_seconds(.2)
 
             if self.player_sprite.health <= 0:
+                file.save_to_file(self.save)
                 arcade.play_sound(self.game_over)
                 self.window.show_view(self.window.views["game_over"])
 
@@ -605,6 +610,7 @@ class GameView(View):
             self.player_sprite.change_health(-1)
             self.physics_engine.remove_sprite(bullet)
             if self.player_sprite.health <= 0:
+                file.save_to_file(self.save)
                 arcade.play_sound(self.game_over)
                 self.window.show_view(self.window.views["game_over"])
 
@@ -1005,6 +1011,8 @@ class GameView(View):
                         collision_type="bullet"
                     )
 
+                    self.physics_engine.set_velocity(bullet, (x,y))
+
 
 
 
@@ -1014,6 +1022,7 @@ class GameView(View):
                 self.score += 50
                 enemy_list.remove(enemy)
                 self.physics_engine.remove_sprite(enemy)
+                self.save += 1
 
 
         """

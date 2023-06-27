@@ -9,6 +9,9 @@ from views.view_game import GameView
 #from view_game_over import GameOverView
 from views.view import View
 
+from views.file import file
+
+
 
 class MainMenuView(View):
     def __init__(self):
@@ -19,6 +22,9 @@ class MainMenuView(View):
 
     def setup(self):
         super().setup()
+
+        self.save = file.read_from_file("save.json")
+
         self.ui_manager = arcade.gui.UIManager()
 
         self.setup_buttons()
@@ -118,3 +124,47 @@ class MainMenuView(View):
         )
 
         self.ui_manager.draw()
+
+        arcade.draw_text(
+            "Total bugs debugged:",
+            self.window.width / 5,
+            self.window.height - 400,
+            (255,255,255),
+            font_size=18,
+            anchor_x="center",
+            anchor_y="center",
+            font_name="Consolas"
+        )
+
+        arcade.draw_text(
+            "Total bugs debugged:",
+            (self.window.width / 5) + 1,
+            self.window.height - 400,
+            (134,9,195),
+            font_size= 18,
+            anchor_x="center",
+            anchor_y="center",
+            font_name="Consolas"
+        )
+        
+        arcade.draw_text(
+            self.save,
+            self.window.width / 5,
+            self.window.height - 450,
+            (255,255,255),
+            font_size=36,
+            anchor_x="center",
+            anchor_y="center",
+            font_name="Consolas"
+        )
+
+        arcade.draw_text(
+            self.save,
+            (self.window.width / 5) + 1,
+            self.window.height - 450,
+            (255,0,0),
+            font_size=36,
+            anchor_x="center",
+            anchor_y="center",
+            font_name="Consolas"
+        )
