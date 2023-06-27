@@ -126,20 +126,45 @@ class MainMenuView(View):
         self.ui_manager.draw()
 
         arcade.draw_text(
-            "Total Enemies Killed:",
-            self.window.width / 2,
-            self.window.height - 600,
-            (134,9,195),
-            font_size=32,
+            "Total bugs debugged:",
+            self.window.width / 5,
+            self.window.height - 400,
+            (255,255,255),
+            font_size=18,
             anchor_x="center",
             anchor_y="center",
+            font_name="Consolas"
         )
+
+        arcade.draw_text(
+            "Total bugs debugged:",
+            (self.window.width / 5) + 1,
+            self.window.height - 400,
+            (134,9,195),
+            font_size= 18,
+            anchor_x="center",
+            anchor_y="center",
+            font_name="Consolas"
+        )
+        
         arcade.draw_text(
             self.save,
-            self.window.width / 2,
-            self.window.height - 650,
-            (134,9,195),
-            font_size=28,
+            self.window.width / 5,
+            self.window.height - 450,
+            (255,255,255),
+            font_size=36,
             anchor_x="center",
             anchor_y="center",
+            font_name="Consolas"
+        )
+
+        arcade.draw_text(
+            self.save,
+            (self.window.width / 5) + 1,
+            self.window.height - 450,
+            (255,0,0),
+            font_size=36,
+            anchor_x="center",
+            anchor_y="center",
+            font_name="Consolas"
         )
