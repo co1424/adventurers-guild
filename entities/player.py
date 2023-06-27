@@ -1,4 +1,4 @@
-from constants import LEFT_FACING, RIGHT_FACING, SWING_SPEED, HEALTH_BOOST_VALUE
+from constants import LEFT_FACING, RIGHT_FACING, SWING_SPEED
 from entities.entity import Entity
 from entities.sword import Sword
 import arcade
@@ -46,10 +46,7 @@ class Player(Entity):
     def check_key(self):
         '''Check if the player has the key by returning has_key'''
         return self.has_key
-
-    def collect_health_boost(self):
-        '''Adjusts player health by calling change_health'''
-        self.change_health(HEALTH_BOOST_VALUE)
+    
 
     def change_health(self, value):
         '''
