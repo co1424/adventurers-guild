@@ -1011,6 +1011,8 @@ class GameView(View):
                         collision_type="bullet"
                     )
 
+                    self.physics_engine.set_velocity(bullet, (x,y))
+
 
 
 
