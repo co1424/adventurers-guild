@@ -3,6 +3,7 @@ Game View
 """
 import math
 import os
+import random
 
 import arcade
 
@@ -13,6 +14,7 @@ from entities.bullet import Bullet
 from entities.ranged_enemy import Ranged_Enemy
 from entities.basic_enemy import Basic_Enemy
 from entities.boss import Boss
+from entities.minion import Minion
 from entities.key import Key
 from entities.door import Door
 from views.view import View
@@ -91,6 +93,9 @@ class GameView(View):
         self.game_over = arcade.load_sound(":resources:sounds/gameover1.wav")
         self.shoot_sound = arcade.load_sound(":resources:sounds/hurt5.wav")
         self.hit_sound = arcade.load_sound(":resources:sounds/hit5.wav")
+
+        # random element
+        self.rand = random.Random()
 
 
 
@@ -890,7 +895,7 @@ class GameView(View):
                         enemy.start_hit_timer()
 
                         arcade.play_sound(self.hit_sound)
-                        self.score += 10
+                        self.score += 5
 
 
             
@@ -953,7 +958,7 @@ class GameView(View):
             enemy.angle = math.degrees(angle)
             # Calculate the velocity components based on the angle
 
-            if isinstance(enemy, Basic_Enemy):
+            if isinstance(enemy, Basic_Enemy) or isinstance(enemy, Minion):
                 
                 # Calculate the velocity components based on the angle
 
@@ -1020,6 +1025,22 @@ class GameView(View):
             if isinstance(enemy, Boss):
                 enemy.angle -= 90
                 dir_x, dir_y = enemy.get_direction()
+                if enemy.should_spawn_minions():
+                    minions_to_spawn = self.rand.randint(3, 6)
+                    for _ in range(minions_to_spawn):
+                        minion = Minion()
+                        minion.center_x = enemy.center_x + self.rand.randint(-10, 10)
+                        minion.center_y = enemy.center_y + self.rand.randint(-10, 10)
+
+                        self.scene.add_sprite(LAYER_NAME_ENEMIES, minion)
+                        self.physics_engine.add_sprite(
+                            minion,
+                            friction=0.6,
+                            moment_of_intertia=PymunkPhysicsEngine.MOMENT_INF,
+                            damping=0.01,
+                            collision_type="enemy",
+                        )
+
                 dir_x *= BOSS_SPEED
                 dir_y *= BOSS_SPEED
 
@@ -1039,6 +1060,13 @@ class GameView(View):
                     self.score += 50
                     enemy_list.remove(enemy)
                     self.physics_engine.remove_sprite(enemy)
+
+                elif isinstance(enemy, Minion):
+                    self.score += 10
+                    enemy_list.remove(enemy)
+                    self.physics_engine.remove_sprite(enemy)
+
+
                 
                 elif isinstance(enemy, Ranged_Enemy):
                     self.score += 100
