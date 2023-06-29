@@ -12,6 +12,7 @@ from entities.enemy import Enemy
 from entities.bullet import Bullet
 from entities.ranged_enemy import Ranged_Enemy
 from entities.basic_enemy import Basic_Enemy
+from entities.boss import Boss
 from entities.key import Key
 from entities.door import Door
 from views.view import View
@@ -184,6 +185,10 @@ class GameView(View):
 
                 if enemy_type == "basic":
                     enemy = Basic_Enemy()
+                elif enemy_type == "ranged":
+                    enemy = Ranged_Enemy()
+                elif enemy_type == "boss":
+                    enemy = Boss()
                 enemy.center_x = math.floor(
                     cartesian[0] * TILE_SCALING * self.tile_map.tile_width
                 )
@@ -445,18 +450,14 @@ class GameView(View):
                     enemy = Basic_Enemy()
                 elif enemy_type == 'ranged':
                     enemy = Ranged_Enemy()
+                elif enemy_type == "boss":
+                    enemy = Boss()
                 enemy.center_x = math.floor(
                     cartesian[0] * TILE_SCALING * self.tile_map.tile_width
                 )
                 enemy.center_y = math.floor(
                     (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
                 )
-                """if "boundary_left" in my_object.properties:
-                    enemy.boundary_left = my_object.properties["boundary_left"]
-                if "boundary_right" in my_object.properties:
-                    enemy.boundary_right = my_object.properties["boundary_right"]"""
-                if "change_x" in my_object.properties:
-                    enemy.change_x = my_object.properties["change_x"]
                 self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
 
         
@@ -699,7 +700,17 @@ class GameView(View):
                         damping=0.01,
                         collision_type="enemy",
                         #max_velocity=200
-                )    
+                )
+                    
+                if isinstance(enemy, Boss):
+                    self.physics_engine.add_sprite(
+                        enemy,
+                        friction=0.6,
+                        moment_of_intertia=PymunkPhysicsEngine.MOMENT_INF,
+                        damping=0.01,
+                        collision_type="boss",
+                        mass=50,
+                    )
 
                 
         if LAYER_NAME_KEYS in self.tile_map.object_lists and self.key_collected == False:       
@@ -943,11 +954,7 @@ class GameView(View):
             # Calculate the velocity components based on the angle
 
             if isinstance(enemy, Basic_Enemy):
-                # Update the enemy's position to follow the player
-                dx = self.player_sprite.center_x - enemy.center_x
-                dy = self.player_sprite.center_y - enemy.center_y
-                angle = math.atan2(dy, dx)
-                enemy.angle = math.degrees(angle)
+                
                 # Calculate the velocity components based on the angle
 
                 velocity_x = BASIC_ENEMY_SPEED * math.cos(angle)
@@ -961,11 +968,7 @@ class GameView(View):
                 enemy.angle = math.degrees(angle)  # Convert the angle to degrees
 
             if isinstance(enemy, Ranged_Enemy):       
-                # Update the enemy's position to follow the player
-                dx = self.player_sprite.center_x - enemy.center_x
-                dy = self.player_sprite.center_y - enemy.center_y
-                angle = math.atan2(dy, dx)
-                enemy.angle = math.degrees(angle)
+                
                 # Update the rotation of the enemy sprite to face the player sprite
                 angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
                 enemy.angle = math.degrees(angle)  # Convert the angle to degrees
@@ -1011,7 +1014,18 @@ class GameView(View):
                         collision_type="bullet"
                     )
 
-                    self.physics_engine.set_velocity(bullet, (x,y))
+
+                    self.physics_engine.set_velocity(bullet, (x, y))
+
+            if isinstance(enemy, Boss):
+                enemy.angle -= 90
+                dir_x, dir_y = enemy.get_direction()
+                dir_x *= BOSS_SPEED
+                dir_y *= BOSS_SPEED
+
+                self.physics_engine.apply_force(enemy, (dir_x, dir_y))
+
+
 
 
 
@@ -1019,10 +1033,24 @@ class GameView(View):
             # returns true or false, but meant to decrease invincibility counter.
             enemy.is_hit()
             if enemy.health <= 0:
-                self.score += 50
-                enemy_list.remove(enemy)
-                self.physics_engine.remove_sprite(enemy)
                 self.save += 1
+
+                if isinstance(enemy, Basic_Enemy):
+                    self.score += 50
+                    enemy_list.remove(enemy)
+                    self.physics_engine.remove_sprite(enemy)
+                
+                elif isinstance(enemy, Ranged_Enemy):
+                    self.score += 100
+                    enemy_list.remove(enemy)
+                    self.physics_engine.remove_sprite(enemy)
+
+                elif isinstance(enemy, Boss):
+                    self.score += 500
+                    enemy_list.remove(enemy)
+                    self.physics_engine.remove_sprite(enemy)
+
+
 
 
         """
