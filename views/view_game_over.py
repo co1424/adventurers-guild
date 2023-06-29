@@ -30,17 +30,21 @@ class GameOverView(View):
         self.v_box = arcade.gui.UIBoxLayout()
 
         
-        play_button = arcade.gui.UIFlatButton(text="Restart Game", width=200)
+        play_button = arcade.gui.UIFlatButton(text="Restart", width=200)
 
         @play_button.event("on_click")
         def on_click_play(event):
+            from views.view_main_menu import MainMenuView
+            self.window.views["main_menu"] = MainMenuView()
             self.window.show_view(self.window.views["main_menu"])
+            
+            
 
         self.v_box.add(play_button.with_space_around(bottom=20))
         
 
         
-        quit_button = arcade.gui.UIFlatButton(text="Quit", width=200)
+        quit_button = arcade.gui.UIFlatButton(text="Stop", width=200)
 
         @quit_button.event("on_click")
         def on_click_quit(event):
