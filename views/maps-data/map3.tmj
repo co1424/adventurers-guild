@@ -58,7 +58,7 @@
                 {
                  "height":0,
                  "id":1,
-                 "name":"",
+                 "name":"M3 Messi",
                  "point":true,
                  "properties":[
                         {
@@ -70,8 +70,26 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":309.333333333333,
-                 "y":454.666666666667
+                 "x":757.215469613259,
+                 "y":143.506445672192
+                }, 
+                {
+                 "height":0,
+                 "id":4,
+                 "name":"M3 Ronaldo",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"type",
+                         "type":"string",
+                         "value":"ranged"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":348.876611418048,
+                 "y":452.596685082873
                 }],
          "opacity":1,
          "properties":[
@@ -109,7 +127,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":4,
+ "nextobjectid":5,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.1",

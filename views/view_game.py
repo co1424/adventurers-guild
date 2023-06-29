@@ -101,6 +101,8 @@ class GameView(View):
 
         self.save = file.read_from_file("save.json")
 
+        self.enemy_kill_dict = {} # This dictionary keeps track of all enemies and whether or not they are killed
+
         # Track the current state of what key is pressed
        #self.left_pressed = False
         #self.right_pressed = False
@@ -176,34 +178,42 @@ class GameView(View):
         # -- Enemies
         if LAYER_NAME_ENEMIES in self.tile_map.object_lists:
             enemies_layer = self.tile_map.object_lists[LAYER_NAME_ENEMIES]
-
+            self.scene.add_sprite_list(LAYER_NAME_ENEMIES)
             for my_object in enemies_layer:
                 cartesian = self.tile_map.get_cartesian(
                     my_object.shape[0], my_object.shape[1]
                 )
-                enemy_type = my_object.properties["type"]
 
-                if enemy_type == "basic":
-                    enemy = Basic_Enemy()
-                elif enemy_type == "ranged":
-                    enemy = Ranged_Enemy()
-                elif enemy_type == "boss":
-                    enemy = Boss()
-                enemy.center_x = math.floor(
-                    cartesian[0] * TILE_SCALING * self.tile_map.tile_width
-                )
-                enemy.center_y = math.floor(
-                    (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
-                )
-                """if "boundary_left" in my_object.properties:
-                    enemy.boundary_left = my_object.properties["boundary_left"]
-                if "boundary_right" in my_object.properties:
-                    enemy.boundary_right = my_object.properties["boundary_right"]"""
-                if "change_x" in my_object.properties:
-                    enemy.change_x = my_object.properties["change_x"]
-                self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
+                enemy_name = my_object.name
+                if enemy_name not in self.enemy_kill_dict:
+                    # Enemy hasn't been killed or hasn't been spawned yet
+                    self.enemy_kill_dict[enemy_name] = False
 
+                if not self.enemy_kill_dict[enemy_name]:
+                    enemy_type = my_object.properties["type"]
 
+                    if enemy_type == "basic":
+                        enemy = Basic_Enemy(enemy_name)
+                    elif enemy_type == "ranged":
+                        enemy = Ranged_Enemy(enemy_name)
+                    elif enemy_type == "boss":
+                        enemy = Boss(enemy_name)
+                    enemy.center_x = math.floor(
+                        cartesian[0] * TILE_SCALING * self.tile_map.tile_width
+                    )
+                    enemy.center_y = math.floor(
+                        (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
+                    )
+                    """if "boundary_left" in my_object.properties:
+                        enemy.boundary_left = my_object.properties["boundary_left"]
+                    if "boundary_right" in my_object.properties:
+                        enemy.boundary_right = my_object.properties["boundary_right"]"""
+                    if "change_x" in my_object.properties:
+                        enemy.change_x = my_object.properties["change_x"]
+                    self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
+
+                        
+                
         # -- Keys
         if LAYER_NAME_KEYS in self.tile_map.object_lists:
             keys_layer = self.tile_map.object_lists[LAYER_NAME_KEYS]
@@ -399,7 +409,10 @@ class GameView(View):
         """       
         self.player_sword_activated = False
         self.enemy_list = []
-
+        
+        while len(self.bullet_list) > 0: # Remove all bullets
+            self.bullet_list.pop()
+    
         self.map_name = map_name
 
         # Layer Specific Options for the Tilemap
@@ -439,28 +452,36 @@ class GameView(View):
         # -- Enemies
         if LAYER_NAME_ENEMIES in self.tile_map.object_lists:
             enemies_layer = self.tile_map.object_lists[LAYER_NAME_ENEMIES]
-    
+            self.scene.add_sprite_list(LAYER_NAME_ENEMIES)
             for my_object in enemies_layer:
                 cartesian = self.tile_map.get_cartesian(
                     my_object.shape[0], my_object.shape[1]
                 )
-                enemy_type = my_object.properties["type"]
-    
-                if enemy_type == "basic":
-                    enemy = Basic_Enemy()
-                elif enemy_type == 'ranged':
-                    enemy = Ranged_Enemy()
-                elif enemy_type == "boss":
-                    enemy = Boss()
-                enemy.center_x = math.floor(
-                    cartesian[0] * TILE_SCALING * self.tile_map.tile_width
-                )
-                enemy.center_y = math.floor(
-                    (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
-                )
-                self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
 
+                enemy_name = my_object.name
+                if enemy_name not in self.enemy_kill_dict:
+                    # Enemy hasn't been killed or hasn't been spawned yet
+                    self.enemy_kill_dict[enemy_name] = False
+
+                if not self.enemy_kill_dict[enemy_name]:
+                    
+                    enemy_type = my_object.properties["type"]
         
+                    if enemy_type == "basic":
+                        enemy = Basic_Enemy(enemy_name)
+                    elif enemy_type == 'ranged':
+                        enemy = Ranged_Enemy(enemy_name)
+                    elif enemy_type == "boss":
+                        enemy = Boss(enemy_name)
+                    enemy.center_x = math.floor(
+                        cartesian[0] * TILE_SCALING * self.tile_map.tile_width
+                    )
+                    enemy.center_y = math.floor(
+                        (cartesian[1] + 1) * (self.tile_map.tile_height * TILE_SCALING)
+                    )
+                    self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)
+                
+
         # -- Keys
         if LAYER_NAME_KEYS in self.tile_map.object_lists and self.key_collected == False:
             keys_layer = self.tile_map.object_lists[LAYER_NAME_KEYS]
@@ -1037,16 +1058,19 @@ class GameView(View):
 
                 if isinstance(enemy, Basic_Enemy):
                     self.score += 50
+                    self.enemy_kill_dict[enemy.name] = True # Mark as dead, so it doesn't respawn.
                     enemy_list.remove(enemy)
                     self.physics_engine.remove_sprite(enemy)
                 
                 elif isinstance(enemy, Ranged_Enemy):
                     self.score += 100
+                    self.enemy_kill_dict[enemy.name] = True
                     enemy_list.remove(enemy)
                     self.physics_engine.remove_sprite(enemy)
 
                 elif isinstance(enemy, Boss):
                     self.score += 500
+                    self.enemy_kill_dict[enemy.name] = True
                     enemy_list.remove(enemy)
                     self.physics_engine.remove_sprite(enemy)
 

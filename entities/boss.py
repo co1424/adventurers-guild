@@ -6,7 +6,8 @@ choices = (-1, 0, 1)
 class Boss(Enemy):
 
 
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         folder = "assets/Sprite/Enemy/Boss"
         img_name = "moth_boss"
         scale = 3
