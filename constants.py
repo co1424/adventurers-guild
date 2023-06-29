@@ -69,5 +69,6 @@ SWORD_OFFSET = 65
 
 # Speeds of enemies
 BASIC_ENEMY_SPEED = 1000
+BOSS_SPEED = 10000
 
 
