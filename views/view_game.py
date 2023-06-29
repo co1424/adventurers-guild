@@ -305,7 +305,7 @@ class GameView(View):
         health_text = f"Health: {self.player_sprite.get_health()}"
         arcade.draw_text(
             health_text,
-            200,
+            250,
             8,
             (255,255,255),
             18,
