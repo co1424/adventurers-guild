@@ -3,9 +3,9 @@ TEAM PROJECT
 
 # Overview
 
-{Provide a description of your team project.  Describe how to use the software.}
+Navigate the labyrinth of code and silence the haunting errors!
 
-{If this is an online class, then provide a link to your YouTube demonstration.  It should be a 4-5 minute demo of the software running and a walkthrough of the code.}
+A top-down sword-fighting, bug-squashing adventure.
 
 [Software Demo Video](http://youtube.link.goes.here)
 
