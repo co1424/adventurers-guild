@@ -1,7 +1,7 @@
 import arcade
 
 from constants import SCREEN_HEIGHT, SCREEN_TITLE, SCREEN_WIDTH
-from views.view_main_menu import MainMenuView
+from views.view_main_menu import MainMenuView 
 
 
 class GameWindow(arcade.Window):

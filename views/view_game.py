@@ -23,6 +23,7 @@ from entities.health_boost import Health_Boost
 from views.file import file
 
 from views.view_game_over import GameOverView
+from views.win_menu import WinView
 
 from arcade.pymunk_physics_engine import PymunkPhysicsEngine
 
@@ -1011,6 +1012,10 @@ class GameView(View):
                     self.enemy_kill_dict[enemy.name] = True
                     enemy_list.remove(enemy)
                     self.physics_engine.remove_sprite(enemy)
+
+                    file.save_to_file(self.save)
+                    self.window.views["win_screen"] = WinView()
+                    self.window.show_view(self.window.views["win_screen"])
 
 
 
