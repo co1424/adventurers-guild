@@ -1,8 +1,6 @@
 import arcade
 import arcade.gui
 from views.view import View
-from views.view_game import GameView
-
 
 class WinView(View):
     def __init__(self):
@@ -13,8 +11,6 @@ class WinView(View):
 
     def setup(self):
         super().setup()
-
-        self.score = GameView.self.score
 
         self.ui_manager = arcade.gui.UIManager()
 
@@ -59,17 +55,17 @@ class WinView(View):
         arcade.start_render()
 
         arcade.draw_text(
-            self.score,
-            self.window.width / 5,
+            "You Win!",
+            self.window.width / 2,
             self.window.height - 130,
             arcade.color.WHITE,
             font_size=100,
-            anchor_x="left",
+            anchor_x="center",
             anchor_y="center",
         )
 
         arcade.draw_text(
-            "You Win!",
+            "",
             self.window.width / 5,
             self.window.height - 250,
             arcade.color.WHITE,
