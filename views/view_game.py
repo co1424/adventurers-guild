@@ -525,7 +525,7 @@ class GameView(View):
             self.health_boost_collected = True
             self.physics_engine.remove_sprite(health_boost)
             self.scene.get_sprite_list(LAYER_NAME_HEALTH_BOOST).remove(health_boost)
-            self.player_sprite.change_health(HEALTH_BOOST_VALUE)
+            self.player_sprite.reset_health()
 
         self.physics_engine.add_collision_handler("player", "health_boost", post_handler=health_boost_player_handler)
         
