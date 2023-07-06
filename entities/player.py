@@ -58,7 +58,10 @@ class Player(Entity):
         '''
         self.health += value
 
-    
+    def reset_health(self):
+        '''Resets the players health to full'''
+        self.health = 10
+
     def get_health(self):
         return self.health
     
