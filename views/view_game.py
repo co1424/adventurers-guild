@@ -46,6 +46,12 @@ class GameView(View):
         self.keys_pressed = set()
         self.player_sword_activated = False
 
+        # Set player progress trackers
+        self.door_open = False
+        self.key_collected = False
+        self.found_locked_door = False
+        self.health_boost_collected = False
+
         # Track the current state of what key is pressed
         self.left_pressed = False
         self.right_pressed = False
@@ -144,7 +150,7 @@ class GameView(View):
                     self.scene.add_sprite(LAYER_NAME_ENEMIES, enemy)               
                 
         # -- Keys
-        if LAYER_NAME_KEYS in self.tile_map.object_lists:
+        if LAYER_NAME_KEYS in self.tile_map.object_lists and self.key_collected == False:
             keys_layer = self.tile_map.object_lists[LAYER_NAME_KEYS]
 
             for my_object in keys_layer:
@@ -163,7 +169,7 @@ class GameView(View):
                 self.scene.add_sprite(LAYER_NAME_KEYS, key)
 
         # -- Doors
-        if LAYER_NAME_DOORS in self.tile_map.object_lists:
+        if LAYER_NAME_DOORS in self.tile_map.object_lists and self.door_open == False:
             doors_layer = self.tile_map.object_lists[LAYER_NAME_DOORS]
 
             for my_object in doors_layer:
@@ -302,11 +308,6 @@ class GameView(View):
             gravity_constant=GRAVITY,
             walls=self.scene.get_sprite_list(LAYER_NAME_WALLS)
         )"""
-        
-        self.door_open = False
-        self.key_collected = False
-        self.found_locked_door = False
-        self.health_boost_collected = False
 
         self.setup_physics_engine()
 
@@ -526,7 +527,7 @@ class GameView(View):
             self.health_boost_collected = True
             self.physics_engine.remove_sprite(health_boost)
             self.scene.get_sprite_list(LAYER_NAME_HEALTH_BOOST).remove(health_boost)
-            self.player_sprite.change_health(HEALTH_BOOST_VALUE)
+            self.player_sprite.reset_health()
 
         self.physics_engine.add_collision_handler("player", "health_boost", post_handler=health_boost_player_handler)
         
