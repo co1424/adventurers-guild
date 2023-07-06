@@ -58,13 +58,13 @@
                 {
                  "height":0,
                  "id":5,
-                 "name":"",
+                 "name":"R1 Carl Wheezer",
                  "point":true,
                  "properties":[
                         {
                          "name":"type",
                          "type":"string",
-                         "value":"basic"
+                         "value":"ranged"
                         }],
                  "rotation":0,
                  "type":"",
@@ -76,7 +76,25 @@
                 {
                  "height":0,
                  "id":6,
-                 "name":"",
+                 "name":"R1 Jimmy Neutron",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"type",
+                         "type":"string",
+                         "value":"ranged"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":1100,
+                 "y":124.242424242424
+                }, 
+                {
+                 "height":0,
+                 "id":8,
+                 "name":"R1 Sheen",
                  "point":true,
                  "properties":[
                         {
@@ -88,8 +106,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1100,
-                 "y":124.242424242424
+                 "x":353.591160220994,
+                 "y":132.007366482505
                 }],
          "opacity":1,
          "properties":[
@@ -127,7 +145,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":8,
+ "nextobjectid":9,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.1",
