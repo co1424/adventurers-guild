@@ -7,6 +7,7 @@ import random
 
 #from views import PauseView
 from views.view_game import GameView
+from views.view_name import NameView
 #from view_game_over import GameOverView
 from views.view import View
 
@@ -77,10 +78,10 @@ class MainMenuView(View):
 
         @play_button.event("on_click")
         def on_click_play(event):
-            self.window.views["game"] = GameView()
+            self.window.views["name"] = NameView()
                     #self.window.views["game_over"] = GameOverView()
                     #self.window.views["pause"] = PauseView()
-            self.window.show_view(self.window.views["game"])
+            self.window.show_view(self.window.views["name"])
 
         self.v_box.add(play_button.with_space_around(bottom=20))
 
@@ -236,7 +237,7 @@ class MainMenuView(View):
         )
         
         arcade.draw_text(
-            self.save, # Number from storage
+            self.save[0], # Number from storage
             self.window.width / 5 - self.slide_from_distance3,
             self.window.height - 450 + self.text_grow,
             (255,255,255),

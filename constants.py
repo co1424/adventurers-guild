@@ -70,4 +70,5 @@ SWORD_OFFSET = 65
 BASIC_ENEMY_SPEED = 1000
 BOSS_SPEED = 10000
 
-
+# Player Name
+player_name = ""

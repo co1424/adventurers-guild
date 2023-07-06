@@ -92,6 +92,8 @@ class GameView(View):
         self.shoot_sound = arcade.load_sound(":resources:sounds/hurt5.wav")
         self.hit_sound = arcade.load_sound(":resources:sounds/hit5.wav")
 
+        self.player_name = None
+
 
 
     def setup(self):
@@ -1033,7 +1035,7 @@ class GameView(View):
             # returns true or false, but meant to decrease invincibility counter.
             enemy.is_hit()
             if enemy.health <= 0:
-                self.save += 1
+                self.save[0] += 1
 
                 if isinstance(enemy, Basic_Enemy):
                     self.score += 50
@@ -1049,6 +1051,11 @@ class GameView(View):
                     self.score += 500
                     enemy_list.remove(enemy)
                     self.physics_engine.remove_sprite(enemy)
+
+                    if self.score > self.save[1]:
+                        self.save[1] = self.score
+                    file.save_to_file(self.save)
+                    
 
 
 
@@ -1146,3 +1153,4 @@ class GameView(View):
         """
 
         self.detect_map_change() 
+        
