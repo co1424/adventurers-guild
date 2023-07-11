@@ -215,7 +215,8 @@ class GameView(View):
                 "use_spatial_hash": True,
             }, 
         }
-            
+        
+        # Makes sure game over exists
         if "game_over" not in self.window.views:
             file.save_to_file(self.save)
             self.window.views["game_over"] = GameOverView()
@@ -238,6 +239,7 @@ class GameView(View):
         self.player_sprite.center_y = (
             3 * self.tile_map.tiled_map.tile_size[1] # Bottom of the screen (Y)
         )
+        # Adds the player to the scene
         self.player_sprite.angle = 0
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
         
@@ -246,7 +248,7 @@ class GameView(View):
         
         self.populate_sprites() # Spawns enemies, keys, doors, pickups
         
-        
+        # Triggers for the game
         self.door_open = False
         self.key_collected = False
         self.found_locked_door = False
@@ -416,17 +418,16 @@ class GameView(View):
 
         self.populate_sprites() # Spawns enemies, keys, doors, pickups
         
-        self.setup_physics_engine()
+        self.setup_physics_engine() # gets things set up for physics
         
     
     def setup_physics_engine(self):
+        # needed for each map of the level
         self.physics_engine = arcade.PymunkPhysicsEngine()
 
-        # def enemy_player_handler(sprite_a, sprite_b, arbiter, space, data):
-        #     self.player_sprite.health -= BULLET_DAMAGE
-
         def enemy_player_handler(player, enemy, arbiter, space, data):
-
+            # Damages the player, bounces back the enemy, sets i-Frames,
+            # and starts game over if player is dead
             dx = self.player_sprite.center_x - enemy.center_x
             dy = self.player_sprite.center_y - enemy.center_y
             angle = math.atan2(dy, dx)
@@ -444,6 +445,7 @@ class GameView(View):
             self.player_sprite.set_invulnerable_seconds(.2)
 
             if self.player_sprite.health <= 0:
+                # initiates game over
                 file.save_to_file(self.save)
                 arcade.play_sound(self.game_over)
                 self.window.show_view(self.window.views["game_over"])
@@ -451,6 +453,7 @@ class GameView(View):
 
 
         def key_player_handler(player, key, arbiter, space, data):
+            # registers the key as being picked up by the player
             self.key_collected = True
             self.physics_engine.remove_sprite(key)
             self.scene.get_sprite_list(LAYER_NAME_KEYS).remove(key)
@@ -458,6 +461,7 @@ class GameView(View):
 
 
         def health_boost_player_handler(player, health_boost, arbiter, space, data):
+            # Adds health to the player when touched by the player
             self.health_boost_collected = True
             self.physics_engine.remove_sprite(health_boost)
             self.scene.get_sprite_list(LAYER_NAME_HEALTH_BOOST).remove(health_boost)
@@ -465,9 +469,9 @@ class GameView(View):
 
         
         def door_player_handler(player, door, arbiter, space, data):
-            # Removes the door if 
+            # Removes the door if touched by the player while having the key
             if (self.player_sprite.check_key() == True):
-                self.door_open = True
+                self.door_open = True #ensures the door doesn't respawn
                 self.physics_engine.remove_sprite(door)
                 self.scene.get_sprite_list(LAYER_NAME_DOORS).remove(door)
                 self.player_sprite.use_key()

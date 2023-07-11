@@ -24,24 +24,11 @@ class Entity(arcade.Sprite):
         self.cur_texture = 0
         self.scale = scale
 
-        self.animations = {}
+        self.animations = {} # arbitrary code
 
         self.idle_texture_pair = load_texture_pair(f"{folder}/{file_prefix}_idle.png")
         # self.jump_texture_pair = load_texture_pair(f"{folder}/{file_prefix}_jump.png")
         # self.fall_texture_pair = load_texture_pair(f"{folder}/{file_prefix}_fall.png")
-
-        # Load textures for walking
-        """self.walk_textures = []
-        for i in range(8):
-            texture = load_texture_pair(f"{folder}/{file_prefix}_walk{i}.png")
-            self.walk_textures.append(texture)"""
-
-        # Load textures for climbing
-        """self.climbing_textures = []
-        texture = arcade.load_texture(f"{folder}/{file_prefix}_climb0.png")
-        self.climbing_textures.append(texture)
-        texture = arcade.load_texture(f"{folder}/{file_prefix}_climb1.png")
-        self.climbing_textures.append(texture)"""
 
         # Set the initial texture
         self.texture = self.idle_texture_pair[0]
