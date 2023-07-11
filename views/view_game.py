@@ -839,50 +839,6 @@ class GameView(View):
                 self.player_sword_activated = False
                         
 
-        #Movement and game logic
-        # Move the player with the physics engine
-        # self.physics_engine.resync_sprites()
-        
-        
-        
-        """
-        if self.can_shoot:
-            if self.shoot_pressed:
-                arcade.play_sound(self.shoot_sound)
-                bullet = arcade.Sprite(
-                    ":resources:images/space_shooter/laserBlue01.png",
-                    SPRITE_SCALING_LASER,
-                )
-
-                if self.player_sprite.facing_direction == RIGHT_FACING:
-                    bullet.change_x = BULLET_SPEED
-                else:
-                    bullet.change_x = -BULLET_SPEED
-
-                bullet.center_x = self.player_sprite.center_x
-                bullet.center_y = self.player_sprite.center_y
-
-                self.scene.add_sprite(LAYER_NAME_BULLETS, bullet)
-
-                self.can_shoot = False
-        else:
-            self.shoot_timer += 1
-            if self.shoot_timer == SHOOT_SPEED:
-                self.can_shoot = True
-                self.shoot_timer = 0
-
-        # Update Animations
-        self.scene.update_animation(
-            delta_time,
-            [
-                LAYER_NAME_COINS,
-                LAYER_NAME_BACKGROUND,
-                LAYER_NAME_PLAYER,
-                LAYER_NAME_ENEMIES,
-            ],
-        )
-        """
-
         for enemy in enemy_list:
             # Update the enemy's position to follow the player
             dx = self.player_sprite.center_x - enemy.center_x
@@ -905,7 +861,7 @@ class GameView(View):
                 angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
                 enemy.angle = math.degrees(angle)  # Convert the angle to degrees
 
-            if isinstance(enemy, Ranged_Enemy):       
+            if isinstance(enemy, Ranged_Enemy):
                 
                 # Update the rotation of the enemy sprite to face the player sprite
                 angle = math.atan2(dy, dx) - 1.5708  # Calculate the angle between the two sprites
@@ -999,8 +955,6 @@ class GameView(View):
                     self.score += 10
                     enemy_list.remove(enemy)
                     self.physics_engine.remove_sprite(enemy)
-
-
                 
                 elif isinstance(enemy, Ranged_Enemy):
                     self.score += 100
