@@ -216,35 +216,14 @@ class GameView(View):
 
         self.enemy_kill_dict = {} # This dictionary keeps track of all enemies and whether or not they are killed
 
-        # Track the current state of what key is pressed
-       #self.left_pressed = False
-        #self.right_pressed = False
-        #self.up_pressed = False
-        #self.down_pressed = False
-        #self.shoot_pressed = False
-        #self.jump_needs_reset = False
-
-        # Setup the Cameras
-        #self.camera = arcade.Camera(self.window.width, self.window.height)
-        #self.gui_camera = arcade.Camera(self.window.width, self.window.height)
-
         # Layer Specific Options for the Tilemap
         layer_options = {
             LAYER_NAME_WALLS: {
                 "use_spatial_hash": True,
             }, 
         }
-            
-        #    LAYER_NAME_MOVING_PLATFORMS: {
-        #        "use_spatial_hash": True,
-        #    },
-        #    LAYER_NAME_LADDERS: {
-        #        "use_spatial_hash": True,
-        #    },
-        #    LAYER_NAME_COINS: {
-        #        "use_spatial_hash": True,
-        #    },
-            
+        
+        # Makes sure game over exists
         if "game_over" not in self.window.views:
             file.save_to_file(self.save)
             self.window.views["game_over"] = GameOverView()
@@ -258,21 +237,6 @@ class GameView(View):
 
         # Keep track of the score
         self.score = 0
-
-        # Load your sprites and set up the game
-        # Sprite lists
-        #self.player_list = arcade.SpriteList()
-
-        # Set up the player
-        #self.player_sprite = Player(":resources:images/animated_characters/female_person/femalePerson_idle.png")
-        #self.player_sprite.center_x = 1216 - self.player_sprite.width // 2
-        #self.player_sprite.center_y = 800 - self.player_sprite.height // 2
-        #self.player_list.append(self.player_sprite)
-        """
-        # Shooting mechanics
-        self.can_shoot = True
-        self.shoot_timer = 0
-        """
         
         # Set up the player at these coordinates. The unit of measurement is in tiles (Each map total width of 38, height of 25)
         self.player_sprite = Player()
@@ -282,6 +246,7 @@ class GameView(View):
         self.player_sprite.center_y = (
             3 * self.tile_map.tiled_map.tile_size[1] # Bottom of the screen (Y)
         )
+        # Adds the player to the scene
         self.player_sprite.angle = 0
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
         
@@ -290,34 +255,16 @@ class GameView(View):
         
         self.populate_sprites() # Spawns enemies, keys, doors, pickups
         
-        """
-        # Add bullet spritelist to Scene
-        self.scene.add_sprite_list(LAYER_NAME_BULLETS)
 
-        # --- Other stuff
-        # Set the background color
-        if self.tile_map.tiled_map.background_color:
-            arcade.set_background_color(self.tile_map.tiled_map.background_color)
-        """
-    
-        # Create the 'physics engine'\
-        
-        """
-        self.physics_engine = arcade.PhysicsEnginePlatformer(
-            self.player_sprite,
-            gravity_constant=GRAVITY,
-            walls=self.scene.get_sprite_list(LAYER_NAME_WALLS)
-        )"""
+        # Triggers for the game
+        self.door_open = False
+        self.key_collected = False
+        self.found_locked_door = False
+        self.health_boost_collected = False
+
 
         self.setup_physics_engine()
 
-
-
-
-    """
-    def on_show_view(self):
-        arcade.set_background_color(self.tile_map.background_color)
-    """
 
     def on_draw(self):
         """Render the screen."""
@@ -480,17 +427,16 @@ class GameView(View):
 
         self.populate_sprites() # Spawns enemies, keys, doors, pickups
         
-        self.setup_physics_engine()
+        self.setup_physics_engine() # gets things set up for physics
         
     
     def setup_physics_engine(self):
+        # needed for each map of the level
         self.physics_engine = arcade.PymunkPhysicsEngine()
 
-        def enemy_player_handler(sprite_a, sprite_b, arbiter, space, data):
-            self.player_sprite.health -= BULLET_DAMAGE
-
         def enemy_player_handler(player, enemy, arbiter, space, data):
-
+            # Damages the player, bounces back the enemy, sets i-Frames,
+            # and starts game over if player is dead
             dx = self.player_sprite.center_x - enemy.center_x
             dy = self.player_sprite.center_y - enemy.center_y
             angle = math.atan2(dy, dx)
@@ -508,46 +454,51 @@ class GameView(View):
             self.player_sprite.set_invulnerable_seconds(.2)
 
             if self.player_sprite.health <= 0:
+                # initiates game over
                 file.save_to_file(self.save)
                 arcade.play_sound(self.game_over)
                 self.window.show_view(self.window.views["game_over"])
 
-        self.physics_engine.add_collision_handler("player", "enemy", post_handler=enemy_player_handler)
 
 
         def key_player_handler(player, key, arbiter, space, data):
+            # registers the key as being picked up by the player
             self.key_collected = True
             self.physics_engine.remove_sprite(key)
             self.scene.get_sprite_list(LAYER_NAME_KEYS).remove(key)
             self.player_sprite.collect_key()
 
-        self.physics_engine.add_collision_handler("player", "key", post_handler=key_player_handler)
 
         def health_boost_player_handler(player, health_boost, arbiter, space, data):
+            # Adds health to the player when touched by the player
             self.health_boost_collected = True
             self.physics_engine.remove_sprite(health_boost)
             self.scene.get_sprite_list(LAYER_NAME_HEALTH_BOOST).remove(health_boost)
             self.player_sprite.reset_health()
 
-        self.physics_engine.add_collision_handler("player", "health_boost", post_handler=health_boost_player_handler)
         
         def door_player_handler(player, door, arbiter, space, data):
+            # Removes the door if touched by the player while having the key
             if (self.player_sprite.check_key() == True):
-                self.door_open = True
+                self.door_open = True #ensures the door doesn't respawn
                 self.physics_engine.remove_sprite(door)
                 self.scene.get_sprite_list(LAYER_NAME_DOORS).remove(door)
                 self.player_sprite.use_key()
             else:
                 self.found_locked_door = True      
 
-        self.physics_engine.add_collision_handler("player", "door", post_handler=door_player_handler)
 
         
         def bullet_handler(player, bullet, arbiter, space, data):
-            
+            # Deletes the bullet, damages the player, and ends the game if it kills the player
             self.bullet_list.remove(bullet)
-            self.player_sprite.change_health(-1)
             self.physics_engine.remove_sprite(bullet)
+
+            if not self.player_sprite.is_Invulnerable():
+                self.player_sprite.change_health(-1)
+
+            self.player_sprite.set_invulnerable_seconds(.2)
+
             if self.player_sprite.health <= 0:
                 file.save_to_file(self.save)
                 arcade.play_sound(self.game_over)
@@ -556,41 +507,26 @@ class GameView(View):
 
 
         def bullet_wall_handler(wall, bullet, arbiter, space, data):
-            
+            # Deletes the bullet if it hits a wall
             self.bullet_list.remove(bullet)
             self.physics_engine.remove_sprite(bullet)
-
+        
         def bullet_enemy_handler(enemy, bullet, arbiter, space, data):
-            
-            if isinstance(enemy, Basic_Enemy):
+            # deletes the bullet if it hits anything besides a ranged enemy
+            if not isinstance(enemy, Ranged_Enemy):
                 self.bullet_list.remove(bullet)
                 self.physics_engine.remove_sprite(bullet)
 
-            
-            """
-            # Check if the bullet has gone off-screen. If so, delete the bullet
-                #if sprite_off_screen(existing_bullet):
-                    #existing_bullet.remove_from_sprite_lists()
-                    #continue
-
-                # Check if the bullet has hit the player
-                self.physics_engine.apply_opposite_running_force(bullet)
-                if not self.player_sprite.is_Invulnerable():
-                    self.player_sprite.change_health(-1)
-                if self.player_sprite.health <= 0:
-                    arcade.play_sound(self.game_over)
-                    self.window.show_view(self.window.views["game_over"])
-                
-                if arcade.check_for_collision_with_list(existing_bullet, self.scene.get_sprite_list(LAYER_NAME_WALLS)):
-                    # when bullet hits wall, remove the bullet
-                    existing_bullet.remove_from_sprite_lists()
-            """
-
+        # Adds all the defined handlers to the physics engine
+        self.physics_engine.add_collision_handler("player", "enemy", post_handler=enemy_player_handler)
+        self.physics_engine.add_collision_handler("player", "key", post_handler=key_player_handler)
+        self.physics_engine.add_collision_handler("player", "health_boost", post_handler=health_boost_player_handler)
+        self.physics_engine.add_collision_handler("player", "door", post_handler=door_player_handler)
         self.physics_engine.add_collision_handler("player", "bullet", post_handler=bullet_handler)
         self.physics_engine.add_collision_handler("wall", "bullet", post_handler=bullet_wall_handler)
         self.physics_engine.add_collision_handler("enemy", "bullet", post_handler=bullet_enemy_handler)
 
-
+        # Adds the player to the physics engine
         self.physics_engine.add_sprite(
             self.player_sprite,
             friction=0.6,
@@ -600,7 +536,7 @@ class GameView(View):
             max_velocity=400
         )
 
-
+        # adds all walls in the tile map to the physics engine
         self.physics_engine.add_sprite_list(
             self.scene.get_sprite_list(LAYER_NAME_WALLS),
             friction=0.6,
@@ -608,6 +544,7 @@ class GameView(View):
             body_type=PymunkPhysicsEngine.STATIC
         )
 
+        # Checks if there's a door in the tilemap and that it hasn't already been opened
         if LAYER_NAME_DOORS in self.tile_map.object_lists and self.door_open == False:
             self.physics_engine.add_sprite_list(
                 self.scene.get_sprite_list(LAYER_NAME_DOORS),
@@ -616,7 +553,7 @@ class GameView(View):
                 body_type=PymunkPhysicsEngine.STATIC
             )
 
-
+        # Adds every enemy in the tile map by type
         if LAYER_NAME_ENEMIES in self.tile_map.object_lists:
             for enemy in self.scene.get_sprite_list(LAYER_NAME_ENEMIES):
                 if isinstance(enemy, Basic_Enemy):       
@@ -650,7 +587,7 @@ class GameView(View):
                         mass=50,
                     )
 
-                
+        # Checks if there's a key and that it already hasn't been collected
         if LAYER_NAME_KEYS in self.tile_map.object_lists and self.key_collected == False:       
             for key in self.scene.get_sprite_list(LAYER_NAME_KEYS):
                 self.physics_engine.add_sprite(
@@ -661,7 +598,7 @@ class GameView(View):
                     collision_type="key",
                     #max_velocity=200
             )
-                
+        # Checks if there's a health boost on the screen
         if LAYER_NAME_HEALTH_BOOST in self.tile_map.object_lists and self.health_boost_collected == False:       
             for health_boost in self.scene.get_sprite_list(LAYER_NAME_HEALTH_BOOST):
                 self.physics_engine.add_sprite(
@@ -672,44 +609,6 @@ class GameView(View):
                     collision_type="health_boost",
                     #max_velocity=200
             )
-
-
-
-    """
-    def process_keychange(self):
-        
-        #Called when we change a key up/down or we move on/off a ladder.
-        
-        # Process up/down
-        if self.up_pressed and not self.down_pressed:
-            if self.physics_engine.is_on_ladder():
-                self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
-            elif (
-                self.physics_engine.can_jump(y_distance=10)
-                and not self.jump_needs_reset
-            ):
-                self.player_sprite.change_y = PLAYER_JUMP_SPEED
-                self.jump_needs_reset = True
-                arcade.play_sound(self.jump_sound)
-        elif self.down_pressed and not self.up_pressed:
-            if self.physics_engine.is_on_ladder():
-                self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
-
-        # Process up/down when on a ladder and no movement
-        if self.physics_engine.is_on_ladder():
-            if not self.up_pressed and not self.down_pressed:
-                self.player_sprite.change_y = 0
-            elif self.up_pressed and self.down_pressed:
-                self.player_sprite.change_y = 0
-
-        # Process left/right
-        if self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
-        elif self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
-        else:
-            self.player_sprite.change_x = 0
-    """
 
     def on_key_press(self, key, modifiers):
         #Called whenever a key is pressed.
@@ -723,8 +622,10 @@ class GameView(View):
         elif key == arcade.key.D:
             self.right_pressed = True
 
+        # Activates a sword swing if it hasn't been started already
         if key == arcade.key.SPACE:
             if not self.player_sword_activated:
+                # see sword.py for more info on this call
                 sword = Sword(
                     self.player_sprite.center_x,
                     self.player_sprite.center_y,
@@ -747,41 +648,17 @@ class GameView(View):
             self.left_pressed = False
         elif key == arcade.key.D:
             self.right_pressed = False
+
     
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int):
+        # Grabs the mouse position to calculate player rotation
         self.mouse_pos = x, y
 
-
-    """
-    def center_camera_to_player(self, speed=0.2):
-        screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
-        screen_center_y = self.player_sprite.center_y - (
-            self.camera.viewport_height / 2
-        )
-        if screen_center_x < 0:
-            screen_center_x = 0
-        if screen_center_y < 0:
-            screen_center_y = 0
-        player_centered = screen_center_x, screen_center_y
-
-        self.camera.move_to(player_centered, speed)
-    """
     
     def on_update(self, delta_time):
+        # DO NOT TOUCH! NEEDED FOR COLLISION CHECKS AND ROTATION HERE
         self.physics_engine.step()
-        # Add some friction
-        if self.player_sprite.change_x > FRICTION:
-            self.player_sprite.change_x -= FRICTION
-        elif self.player_sprite.change_x < -FRICTION:
-            self.player_sprite.change_x += FRICTION
-        else:
-            self.player_sprite.change_x = 0
-        if self.player_sprite.change_y > FRICTION:
-            self.player_sprite.change_y -= FRICTION
-        elif self.player_sprite.change_y < -FRICTION:
-            self.player_sprite.change_y += FRICTION
-        else:
-            self.player_sprite.change_y = 0
+
         # Apply acceleration based on the keys pressed
         if self.up_pressed and not self.down_pressed:
             force = (0, ACCELERATION_RATE)
@@ -804,13 +681,14 @@ class GameView(View):
         angle = math.atan2(dy, dx) + 1.5708  # Calculate the angle between the two sprites
         self.player_sprite.angle = math.degrees(angle)  # Convert the angle to degrees
         
-
+        # used for all enemy checks later
         enemy_list = self.scene.get_sprite_list(LAYER_NAME_ENEMIES)
 
         if self.player_sword_activated:
             swords = self.scene.get_sprite_list(LAYER_NAME_SWORD)
-            for sword in swords:
+            for sword in swords: # Strange, but needed since it crashes if you try and access the only sword in the list
                 for enemy in arcade.check_for_collision_with_list(sword, enemy_list):
+                    # Checks for collisions with the sword with all enemies every frame the sword is active
                     if enemy.is_hit():
                         
                         dx = self.player_sprite.center_x - enemy.center_x
@@ -823,6 +701,7 @@ class GameView(View):
                         velocity_y = BASIC_ENEMY_SPEED * math.sin(angle) * 20
 
                         force = (-velocity_x, -velocity_y)
+                        # Applies knockback movement to the enemy hit
                         self.physics_engine.apply_force(enemy, force)
                         enemy.change_health(-1)
                         enemy.start_hit_timer()
@@ -831,11 +710,12 @@ class GameView(View):
                         self.score += 5
 
 
-            
+            # if the sword is done swinging
             unfinished = self.player_sprite.update_animation(sword)
 
-            if not unfinished:
+            if not unfinished: 
                 self.scene.remove_sprite_list_by_name(LAYER_NAME_SWORD)
+                # Stops checking if enemies are touching the sword
                 self.player_sword_activated = False
                         
 
@@ -871,10 +751,6 @@ class GameView(View):
                 # Increase the enemy's timer
                 self.enemy_timer += delta_time
 
-                # Position the camera
-                # self.center_camera_to_player()
-                    # Call updates on bullet sprites
-
                 # Check if the enemy can attack. If so, shoot a bullet from the
                 # enemy towards the player
                 if self.enemy_timer >= ENEMY_ATTACK_COOLDOWN:
@@ -908,20 +784,23 @@ class GameView(View):
                         collision_type="bullet"
                     )
 
-
+                    # Sets speed of the bullet
                     self.physics_engine.set_velocity(bullet, (x, y))
 
             if isinstance(enemy, Boss):
-                enemy.angle -= 90
-                dir_x, dir_y = enemy.get_direction()
-                if enemy.should_spawn_minions():
+                enemy.angle -= 90 # Adjustment for Sprite orientation
+                dir_x, dir_y = enemy.get_direction() # See boss.py for more about this function
+                if enemy.should_spawn_minions(): # Checks if the minion timer is up 
                     minions_to_spawn = self.rand.randint(3, 6)
+                    # Spawns a random amount of minions
                     for _ in range(minions_to_spawn):
                         minion = Minion()
                         minion.center_x = enemy.center_x + self.rand.randint(-10, 10)
                         minion.center_y = enemy.center_y + self.rand.randint(-10, 10)
 
+                        # Adds each minion to the scene
                         self.scene.add_sprite(LAYER_NAME_ENEMIES, minion)
+                        # Adds each minion to the physics engine
                         self.physics_engine.add_sprite(
                             minion,
                             friction=0.6,
@@ -933,6 +812,7 @@ class GameView(View):
                 dir_x *= BOSS_SPEED
                 dir_y *= BOSS_SPEED
 
+                # Applies movement to the boss
                 self.physics_engine.apply_force(enemy, (dir_x, dir_y))
 
 
@@ -942,9 +822,15 @@ class GameView(View):
 
             # returns true or false, but meant to decrease invincibility counter.
             enemy.is_hit()
+
+            # decides what to do with a dead enemy
             if enemy.health <= 0:
                 self.save += 1
 
+                """
+                each isinstance is for a certain enemy type, and performs different
+                actions accordingly
+                """
                 if isinstance(enemy, Basic_Enemy):
                     self.score += 50
                     self.enemy_kill_dict[enemy.name] = True # Mark as dead, so it doesn't respawn.
@@ -973,98 +859,4 @@ class GameView(View):
                     self.window.show_view(self.window.views["win_screen"])
 
 
-
-
-        """
-        # See if the moving wall hit a boundary and needs to reverse direction.
-        for wall in self.scene.get_sprite_list(LAYER_NAME_MOVING_PLATFORMS):
-
-            if (
-                wall.boundary_right
-                and wall.right > wall.boundary_right
-                and wall.change_x > 0
-            ):
-                wall.change_x *= -1
-            if (
-                wall.boundary_left
-                and wall.left < wall.boundary_left
-                and wall.change_x < 0
-            ):
-                wall.change_x *= -1
-            if wall.boundary_top and wall.top > wall.boundary_top and wall.change_y > 0:
-                wall.change_y *= -1
-            if (
-                wall.boundary_bottom
-                and wall.bottom < wall.boundary_bottom
-                and wall.change_y < 0
-            ):
-                wall.change_y *= -1
-
-        for bullet in self.scene.get_sprite_list(LAYER_NAME_BULLETS):
-            hit_list = arcade.check_for_collision_with_lists(
-                bullet,
-                [
-                    self.scene.get_sprite_list(LAYER_NAME_ENEMIES),
-                    self.scene.get_sprite_list(LAYER_NAME_PLATFORMS),
-                    self.scene.get_sprite_list(LAYER_NAME_MOVING_PLATFORMS),
-                ],
-            )
-
-            if hit_list:
-                bullet.remove_from_sprite_lists()
-
-                for collision in hit_list:
-                    if (
-                        self.scene.get_sprite_list(LAYER_NAME_ENEMIES)
-                        in collision.sprite_lists
-                    ):
-                        # The collision was with an enemy
-                        collision.health -= BULLET_DAMAGE
-
-                        if collision.health <= 0:
-                            collision.remove_from_sprite_lists()
-                            self.score += 100
-
-                        # Hit sound
-                        arcade.play_sound(self.hit_sound)
-
-                return
-
-            if (bullet.right < 0) or (
-                bullet.left
-                > (self.tile_map.width * self.tile_map.tile_width) * TILE_SCALING
-            ):
-                bullet.remove_from_sprite_lists()
-        """
-        # Loop through each coin we hit (if any) and remove it
-        """
-        for collision in player_collision_list:
-
-            if self.scene.get_sprite_list(LAYER_NAME_ENEMIES) in collision.sprite_lists:
-                #game over and restart
-                GameView.setup(self)
-                self.player_sprite.change_x = 0
-                self.player_sprite.change_y = 0
-                self.right_pressed = False
-                self.left_pressed = False
-                self.down_pressed = False
-                self.up_pressed = False
-                self.player_sprite.update()    
-                arcade.play_sound(self.game_over)
-                self.window.show_view(self.window.views["game_over"])
-                return
-            
-            else:
-                # Figure out how many points this coin is worth
-                if "Points" not in collision.properties:
-                    print("Warning, collected a coin without a Points property.")
-                else:
-                    points = int(collision.properties["Points"])
-                    self.score += points
-
-                # Remove the coin
-                collision.remove_from_sprite_lists()
-                arcade.play_sound(self.collect_coin_sound)
-        """
-
-        self.detect_map_change() 
+        self.detect_map_change()

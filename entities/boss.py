@@ -22,6 +22,7 @@ class Boss(Enemy):
         self.rand = random.Random()
 
     def get_direction(self):
+        # meant to be called every frame
         self.tick_direction_timer()
         return (self.direction_x, self.direction_y)
     
@@ -35,6 +36,7 @@ class Boss(Enemy):
         self.direction_timer = 2.0
 
     def change_direction(self):
+        # sets a random direction in one of eight directions
         self.direction_x = self.rand.choice(choices)
         self.direction_y = self.rand.choice(choices)
 
@@ -42,6 +44,7 @@ class Boss(Enemy):
         self.minion_spawn_timer = 5.0
 
     def tick_minion_spawn_timer(self, delta_time = 1 / 60):
+        # spawns minions every time the timer hits 0
         self.minion_spawn_timer -= delta_time
         if self.minion_spawn_timer <= 0:
             self.start_minion_spawn_timer()

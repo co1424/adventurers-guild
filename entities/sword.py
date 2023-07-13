@@ -9,13 +9,14 @@ class Sword(Entity):
         prefix = "sword"
         scale = .75
         super().__init__(folder, prefix, scale)
+        # initial start point of the sword
         angle_radians = math.radians(angle + 30)
         self.center_x = x + math.cos(angle_radians) * SWORD_OFFSET
         self.center_y = y + math.sin(angle_radians) * SWORD_OFFSET
         self.angle = angle
 
     def swing(self, rotation_point, step_in_degrees):
-
+        # Calculates at what point in the arc that the sword to be moved to
         angle_radians = math.radians(self.angle)
         self.center_x = rotation_point[0] + math.cos(angle_radians) * SWORD_OFFSET
         self.center_y = rotation_point[1] + math.sin(angle_radians) * SWORD_OFFSET
