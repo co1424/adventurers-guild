@@ -37,3 +37,5 @@ Written in Python using the Python Arcade library.
 * Add more and/or randomized levels
 * Add power ups
 * Fix sound effects
+* Fix bug where only one wasp will shoot at a time when there are two in a room
+* Delay the win screen after the boss is killed 
