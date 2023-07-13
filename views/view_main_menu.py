@@ -73,17 +73,18 @@ class MainMenuView(View):
             "font_name": "Consolas"
             
         }
+        
+        #button to start game
         play_button = arcade.gui.UIFlatButton(text="Step Into", width=200, style=custom_style)
 
         @play_button.event("on_click")
         def on_click_play(event):
             self.window.views["game"] = GameView()
-                    #self.window.views["game_over"] = GameOverView()
-                    #self.window.views["pause"] = PauseView()
             self.window.show_view(self.window.views["game"])
 
         self.v_box.add(play_button.with_space_around(bottom=20))
 
+        #button to quit game
         quit_button = arcade.gui.UIFlatButton(text="Stop", width=200, style=custom_style)
 
         @quit_button.event("on_click")
