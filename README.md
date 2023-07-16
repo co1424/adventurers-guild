@@ -1,5 +1,5 @@
-# adventurers-guild
-TEAM PROJECT
+# Code Catacombs
+TEAM PROJECT - created by The Adventurer's Guild
 
 # Overview
 
@@ -7,7 +7,7 @@ Navigate the labyrinth of code and silence the haunting errors!
 
 A top-down, sword-fighting, bug-squashing, dungeon-crawling adventure.
 
-[Code Catacombs Demo Video](http://youtube.link.goes.here)
+[Code Catacombs Demo Video](https://www.youtube.com/watch?v=lET3g_iNG4E)
 
 # Development Environment
 
