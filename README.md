@@ -1,19 +1,19 @@
-# adventurers-guild
-TEAM PROJECT
+# Code Catacombs
+TEAM PROJECT - created by The Adventurer's Guild
 
 # Overview
 
 Navigate the labyrinth of code and silence the haunting errors!
 
-A top-down sword-fighting, bug-squashing adventure.
+A top-down, sword-fighting, bug-squashing, dungeon-crawling adventure.
 
-[Software Demo Video](http://youtube.link.goes.here)
+[Code Catacombs Demo Video](https://www.youtube.com/watch?v=lET3g_iNG4E)
 
 # Development Environment
 
-Written using the VScode IDE and GitHub.
+Written using the VScode IDE and GitHub Version Control System.
 
-Written in Python using the Arcade library.
+Written in Python using the Python Arcade library.
 
 # Collaborators
 
@@ -27,10 +27,15 @@ Written in Python using the Arcade library.
 # Useful Websites
 
 * [The Python Arcade Library](https://api.arcade.academy/en/latest/index.html)
+* [Piskel Sprite Editor](https://www.piskelapp.com/)
+* [Tiled Map Editor](https://www.mapeditor.org/)
 
 # Future Work
 
-{Make a list of things that you need to fix, improve, and add in the future.}
-* Item 1
-* Item 2
-* Item 3
+* Add cut scenes to enhance the story
+* Make the sword able to deflect bullets
+* Add more and/or randomized levels
+* Add power ups
+* Fix sound effects
+* Fix bug where only one wasp will shoot at a time when there are two in a room
+* Delay the win screen after the boss is killed 
